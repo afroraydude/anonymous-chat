@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import openSocket from 'socket.io-client';
+import {createCipher} from 'crypto-browserify';
 import {Table, Input, Button, Form, FormGroup, Navbar, NavbarBrand} from 'reactstrap';
 
   const b64DecodeUnicode = function(str) {
@@ -18,7 +19,7 @@ export class Main extends Component {
     const url = this.props.match.params.url;
     console.log(b64DecodeUnicode(url));
     const socket = openSocket(b64DecodeUnicode(url));
-    this.state = {url: b64DecodeUnicode(url), screen: "init", input: "", id: "", color: "", status: "connecting", iosocket: socket, messages: [], messageView: <div></div>}
+    this.state = {url: b64DecodeUnicode(url), screen: "init", input: "", id: "", color: "", crypto: "", status: "connecting", iosocket: socket, messages: [], messageView: <div></div>}
     
     this.updateMessages = this.updateMessages.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -41,7 +42,7 @@ export class Main extends Component {
     }.bind(this))
     socket.on("identification", function(identification) {
       console.log(identification);
-      this.setState({id: identification.id, color: identification.color, status: "getting messages"});
+      this.setState({id: identification.id, color: identification.color, crypto: identification.crypto, status: "getting messages"});
     }.bind(this));
     socket.on("messagelist", function(data) {
       console.log(data);
@@ -74,7 +75,7 @@ export class Main extends Component {
     var messages = this.state.messages.map(message => {
       return (<tr key={message.client}>
         <td>
-          <p><span style={{color: message.color}}>Anonymous <small><code>id: {message.client}</code></small></span>: {message.data}</p> 
+          <p style={{fontSize: 12}}><span style={{color: message.color}}>Anonymous <small style={{fontSize: 12}}><code>id: {message.client}</code></small></span>: <span>{message.data}</span></p> 
         </td>
       </tr>)
     });
@@ -101,10 +102,13 @@ export class Main extends Component {
   sendMessage(event) {
     event.preventDefault();
     var socket = this.state.iosocket;
+    var algorithm = 'aes-256-ctr';
+    var x = createCipher(algorithm, this.state.crypto);
+    var y = x.update(this.state.input, 'utf8', 'hex');
     var data = {
       client: this.state.id,
       color: this.state.color,
-      data: this.state.input
+      data: y
     };
     if (data.data.length >= 1 && data.data.length <= 250) {
       socket.emit("message", data);
