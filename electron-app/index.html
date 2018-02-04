@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html style="height: 100%; width: 100%; overflow: hidden;">
+
+<head>
+  <meta charset="UTF-8">
+  <title>IronChat</title>
+</head>
+
+<body style="height: 100%; width: 100%">
+  <div style="height: 100%; width: 100%">
+    <webview id="foo" src="https://afro-anonchat.firebaseapp.com" style="height: 100%; width: 100%;">
+      <div class="indicator"></div>
+    </webview>
+  </div>
+  <script type="text/javascript">
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    // Event handlers for loading events.
+    // Use these to handle loading screens, transitions, etc
+    onload = () => {
+      const webview = document.getElementById('foo')
+      const indicator = document.querySelector('.indicator')
+      console.log(getParameterByName("server"))
+      var server = getParameterByName("server")
+      if(server) {
+        console.log("Server is already set as "+server+ " so time to connect to https://afro-anonchat.firebaseapp.com/chat/"+server)
+        webview.src = "https://afro-anonchat.firebaseapp.com/chat/"+server
+      }
+      const loadstart = () => {
+        indicator.innerText = 'loading...'
+      }
+
+      const loadstop = () => {
+        indicator.innerText = ''
+      }
+      webview.addEventListener('did-start-loading', loadstart)
+      webview.addEventListener('did-stop-loading', loadstop)
+    }
+  </script>
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+  </script>
+</body>
+
+</html>
