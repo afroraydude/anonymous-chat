@@ -1,12 +1,14 @@
-https = require('https');
-fs = require('fs');
-require('dotenv').config();
+http = require('http');
+//fs = require('fs');
+/*
 var httpsoptions = {
-    key: fs.readFileSync(process.env.key),
-    cert: fs.readFileSync(process.env.cert)
+  key: fs.readFileSync(process.env.key),
+  cert: fs.readFileSync(process.env.cert)
 };
-app = https.createServer(httpsoptions);
-io = require('socket.io',{secure: true})(app);
+*/
+require('dotenv').config();
+app = http.createServer();
+io = require('socket.io')(app);
 require('dotenv').config();
 var crypto = require('crypto');
 var algorithm = 'aes-256-ctr';
@@ -53,23 +55,38 @@ io.on('connection', (socket) => {
     console.log('client left');
   });
   socket.on('message', function(message) {
-    messages.push(message);
+    console.log("got a message");
     if (messages.length > process.env.maxmsg) {
       messages.shift();
     }
-    var xx = crypto.createDecipher(algorithm,socket.crypto);
-    var yy = xx.update(message.data, 'hex', 'utf8');
-    message.data = yy;
-    let realm = new Realm({schema: [MessageSchema]});
-    realm.write(() => {
+
+    /** TODO: encrypted sending and recieving
+      var xx = crypto.createDecipher(algorithm,socket.crypto);
+      var yy = xx.update(message.data, 'hex', 'utf8');
+      message.data = yy;
+    */
+
+    if (message.data.startsWith("/join")) {
+      var room = message.data.split(" ")[1];
+      if (room.startsWith("#")) {
+        socket.emit("join", room);
+        socket.join(room);
+      } else {
+        socket.emit("message", {client: "Server", color: "red", data: "Rooms must start with the \"#\" sign (ex: #default)"})
+      }
+    } else {
+      messages.push(message);
+      let realm = new Realm({schema: [MessageSchema]});
+      realm.write(() => {
         let x = realm.create('Message', {
             client: message.client,
             color: message.color,
-            data: yy
+            data: message.data
         });
-    });
-    io.emit("message", message);
-    console.log("sent a message");
+      });
+      io.emit("message", message);
+      console.log("sent a message");
+    }
   });
 });
 
