@@ -34,6 +34,7 @@ export class Main extends Component {
    this.renderRooms = this.renderRooms.bind(this);
    this.resetRooms = this.resetRooms.bind(this);
    this.switchRoom = this.switchRoom.bind(this);
+   document.title = "IronChat - #default";
   }
 
   componentDidMount() {
@@ -46,6 +47,7 @@ export class Main extends Component {
       var x = ["#default"]
       this.setState({rooms: x});
       this.renderRooms('x');
+      document.title = "IronChat - #default";
     }
   }
 
@@ -55,13 +57,12 @@ export class Main extends Component {
         var x = this.state.rooms;
         x.push(room);
         this.setState({rooms: x});
-        this.renderRooms("x");
+        this.renderRooms();
       }
     }
   }
 
-  renderRooms(x) {
-    if(x) {
+  renderRooms() {
       var rooms = this.state.rooms.map(room => {
         return (
           <p>{room}<br/></p>
@@ -69,14 +70,13 @@ export class Main extends Component {
       });
       const view = <div><h2>Rooms</h2>{rooms}</div>
       this.setState({roomview: view})
-    }
   }
 
   switchRoom(room) {
     if (room) {
-    const x = this.state.rooms.indexOf(room)
-    this.setState({room: x, roomName: this.state.rooms[x]});
-    //this.renderRooms('x');
+      const x = this.state.rooms.indexOf(room)
+      this.setState({room: x, roomName: this.state.rooms[x]});
+      document.title = "IronChat - " + room;
     }
   }
 

@@ -6,7 +6,7 @@ import {Start} from './Start';
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 2)
+    localStorage.setItem("version", 3)
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
     }

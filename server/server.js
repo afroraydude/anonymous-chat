@@ -35,7 +35,7 @@ function makeid() {
     return text;
 }
 
-var serverInfo = {version: "2", title: "Test Server", rooms: ['/']};
+var serverInfo = {version: "3", title: "Test Server", rooms: ['/']};
 
 io.on('connection', (socket) => {
   console.log("new socket with id "+socket.id+" has connected and is ready to recieve messages.");

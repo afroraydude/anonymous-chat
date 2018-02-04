@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import openSocket from 'socket.io-client';
-import {createCipher} from 'crypto-browserify';
+import {createCipher, createHash} from 'crypto-browserify';
 import './Chat.css';
 import {
   Table,
@@ -13,6 +13,8 @@ import {
   Navbar,
   NavbarBrand
 } from 'reactstrap';
+
+
 
 const b64DecodeUnicode = function (str) {
   // Going backwards: from bytestream, to percent-encoding, to original string.
@@ -38,9 +40,9 @@ export class Chat extends Component {
       status: "connecting",
       iosocket: socket,
       messages: [],
-      messageView: <div></div>
+      messageView: <div></div>,
+      key: Math.random()
     }
-
     this.updateMessages = this
       .updateMessages
       .bind(this);
@@ -120,18 +122,20 @@ export class Chat extends Component {
       .map(message => {
         if (message.room === this.props.room || message.room === "#all") {
         return (
-          <tr key={message.client} >
+          <tr key={createHash('md5').update(String(Math.random())).digest("hex")} >
             <td className="noborder">
               <p style={{fontSize: 12}}><span style={{color: message.color}}>Anonymous <small style={{fontSize: 12}}><code>[{message.client}]</code></small></span>: <span>{message.data}</span>
               </p>
             </td>
           </tr>
         )
+        } else {
+          console.log("Message " + createHash('md5').update(message.data).digest("hex") + " is from a different channel")
         }
       });
 
     var view = (
-      <div>
+      <div key={this.state.key}>
         <div id="data">
           <Table size="sm">
             <thead>
@@ -144,8 +148,47 @@ export class Chat extends Component {
         </div>
       </div>
     );
-    this.setState({screen: "messages", messageView: view});
+    this.setState({screen: "messages", messageView: view, key: Math.random()});
+    var elem = document.getElementById('data');
+    elem.scrollTop = elem.scrollHeight;
+  }
 
+  updateRoomMessages(room) {
+    console.log("Switching to room "+room)
+    this.setState({messageView: <p></p>})
+    var messages = this
+      .state
+      .messages
+      .map(message => {
+        if (message.room === room || message.room === "#all") {
+        return (
+          <tr key={createHash('md5').update(String(Math.random())).digest("hex")} >
+            <td className="noborder">
+              <p style={{fontSize: 12}}><span style={{color: message.color}}>Anonymous <small style={{fontSize: 12}}><code>[{message.client}]</code></small></span>: <span>{message.data}</span>
+              </p>
+            </td>
+          </tr>
+        )
+        } else {
+          console.log("Message " + createHash('md5').update(message.data).digest("hex") + " is from a different channel")
+        }
+      });
+
+    var view = (
+      <div key={this.state.key}>
+        <div id="data">
+          <Table size="sm">
+            <thead>
+              <tr></tr>
+            </thead>
+            <tbody>
+              {messages}
+            </tbody>
+          </Table>
+        </div>
+      </div>
+    );
+    this.setState({screen: "messages", messageView: view, key: Math.random()});
     var elem = document.getElementById('data');
     elem.scrollTop = elem.scrollHeight;
   }
@@ -180,8 +223,14 @@ export class Chat extends Component {
       var x = this.state.input;
       var room = x.split(" ")[1];
       if (room && this.props.rooms.indexOf(room) > -1) {
+        this.updateRoomMessages(room);
         this.props.switchRoom(room);
         this.clearMessages();
+        this.updateMessages();
+        var messages = this.state.messages;
+        var newMessage = {client: "Client", color:"red", room: room, data: "Switched to room: "+room}
+        messages.push(newMessage);
+        this.setState({messages:messages});
         this.updateMessages();
       }
     }
@@ -210,7 +259,7 @@ export class Chat extends Component {
             bottom: 0,
             height: 45
           }}>
-            <Form autocomplete="off" onSubmit={this.sendMessage} inline style={{width: "100%"}}>
+            <Form autoComplete="off" onSubmit={this.sendMessage} inline style={{width: "100%"}}>
               <FormGroup style={{width: "100%"}}>
                 <Input style={{width: "80%"}} type="text" name="text" id="text" placeholder="Place message here..." onChange={this.handleTextTyping} style={{marginLeft: 20}}
                   value={this.state.input}/>
@@ -238,7 +287,7 @@ export class Chat extends Component {
             height: 45
           }}>
             <Form
-              autocomplete="off"
+              autoComplete="off"
               onSubmit={this.sendMessage}
               inline
               style={{
