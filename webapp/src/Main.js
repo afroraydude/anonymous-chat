@@ -9,6 +9,7 @@ import {
   Navbar,
   NavbarBrand
 } from 'reactstrap';
+import logo from "./logo.png";
   const b64DecodeUnicode = function(str) {
     // Going backwards: from bytestream, to percent-encoding, to original string.
     return decodeURIComponent(atob(str).split('').map(function(c) {
@@ -32,6 +33,7 @@ export class Main extends Component {
    this.joinRoom = this.joinRoom.bind(this);
    this.renderRooms = this.renderRooms.bind(this);
    this.resetRooms = this.resetRooms.bind(this);
+   this.switchRoom = this.switchRoom.bind(this);
   }
 
   componentDidMount() {
@@ -43,37 +45,38 @@ export class Main extends Component {
     if (x) {
       var x = ["#default"]
       this.setState({rooms: x});
-      this.renderRooms();
+      this.renderRooms('x');
     }
   }
 
   joinRoom(room) {
     if (room) {
-      var x = this.state.rooms;
-      x.push(room);
-      this.setState({rooms: x});
-      this.renderRooms("x");
+      if(this.state.rooms.indexOf(room) === -1) {
+        var x = this.state.rooms;
+        x.push(room);
+        this.setState({rooms: x});
+        this.renderRooms("x");
+      }
     }
   }
-
-
 
   renderRooms(x) {
     if(x) {
       var rooms = this.state.rooms.map(room => {
-        if(this.state.rooms.indexOf(room) === this.state.room) {
-          return (
-            <p style={{color: "red"}}>{room}<br/></p>
-          )
-        } else {
-          console.log(this.state.rooms.indexOf(room) + " " + this.state.room)
-          return (
-            <p>{room}<br/></p>
-          )
-        }
+        return (
+          <p>{room}<br/></p>
+        )
       });
-      const view = <div>{rooms}</div>
+      const view = <div><h2>Rooms</h2>{rooms}</div>
       this.setState({roomview: view})
+    }
+  }
+
+  switchRoom(room) {
+    if (room) {
+    const x = this.state.rooms.indexOf(room)
+    this.setState({room: x, roomName: this.state.rooms[x]});
+    //this.renderRooms('x');
     }
   }
 
@@ -82,15 +85,15 @@ export class Main extends Component {
     return (
       <div style={{height:"100%",width:"100%", overflowY:"hidden"}}>
         <Navbar dark expand="md">
-            <NavbarBrand>Messages</NavbarBrand>
-            <small>server: <code>{x}</code> room: <code>{this.state.rooms[this.state.room]}</code></small>
+            <NavbarBrand><img alt="logo" src={logo} width="250"></img></NavbarBrand>
+            <small>servercode: <code>{x}</code> room: <code>{this.state.rooms[this.state.room]}</code></small>
         </Navbar>
         <div style={{height:"100%",width:"100%"}} className="container-fluid row">
           <div className="col-md-1">
             {this.state.roomview}
           </div>
           <div style={{height:"90%"}} className="col-md-11">
-            <Chat url={x} joinRoom={this.joinRoom} resetRooms={this.resetRooms} room={this.state.roomName} />
+            <Chat rooms={this.state.rooms} room={this.state.roomName} url={x} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms}/>
           </div>
         </div>
       </div>

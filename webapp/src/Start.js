@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import {Form,FormGroup,Input,Button} from 'reactstrap';
 import openSocket from 'socket.io-client';
+import logo from "./logo.png";
+import './Start.css';
 
 const b64EncodeUnicode = function(str) {
   // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -60,8 +62,8 @@ export class Start extends Component {
         window.location.hostname + ':' + window.location.port + '/chat/' + b64EncodeUnicode(this.state.url);
     }
     return (
-      <div class="container" style={{margin: "0 auto", width: "50%"}}>
-        <h1 style={{textAlign: "center", marginTop: 50, marginBottom: 50}}>Welcome!</h1>
+      <div class="container vertical center" style={{margin: "0 auto", width: "50%"}}>
+        <img alt="logo" src={logo} className="center" style={{marginBottom: 50}}/>
         {x}
       </div>
     )

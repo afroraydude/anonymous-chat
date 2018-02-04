@@ -15,12 +15,13 @@ var algorithm = 'aes-256-ctr';
 sockets = [];
 messages = [];
 var Realm = require('realm');
-colors = ["black", "blue", "green", "orange", "sienna", "coral", "purple", "gold", "khaki", "royalblue", "silver", "olive", "orchid"];
+colors = ["black", "blue", "green", "orange", "sienna", "coral", "purple", "gold", "royalblue", "silver", "olive", "orchid"];
 const MessageSchema = {
   name: 'Message',
   properties: {
     client: 'string',
     color: 'string',
+    room: 'string',
     data: 'string'
   }
 }
@@ -47,7 +48,7 @@ io.on('connection', (socket) => {
   var colorChoice = colors[Math.floor(Math.random() * colors.length)];
   socket.emit("identification", {id: x, color: colorChoice, crypto: socket.crypto});
   socket.emit("messagelist", messages);
-  socket.emit("message", {client: "Server", color: "red", data: "Welcome!"});
+  socket.emit("message", {client: "Server", color: "red", room: "#all", data: "Welcome!"});
   socket.emit("version", serverInfo.version);
   socket.emit("serverinfo", serverInfo);
   socket.on('disconnect', function () {
@@ -56,23 +57,24 @@ io.on('connection', (socket) => {
   });
   socket.on('message', function(message) {
     console.log("got a message");
-    if (messages.length > process.env.maxmsg) {
+    var maxmsg = process.env.maxmsg || 15
+    if (messages.length > maxmsg) {
       messages.shift();
     }
 
-    /** TODO: encrypted sending and recieving
+    /** TODO: encrypted sending and recievingh
       var xx = crypto.createDecipher(algorithm,socket.crypto);
       var yy = xx.update(message.data, 'hex', 'utf8');
       message.data = yy;
     */
-
+    socket.join("#default");
     if (message.data.startsWith("/join")) {
       var room = message.data.split(" ")[1];
       if (room.startsWith("#")) {
         socket.emit("join", room);
         socket.join(room);
       } else {
-        socket.emit("message", {client: "Server", color: "red", data: "Rooms must start with the \"#\" sign (ex: #default)"})
+        socket.emit("message", {client: "Server", color: "red", room: "#all", data: "Rooms must start with the \"#\" sign (ex: #default)"})
       }
     } else {
       messages.push(message);
@@ -81,6 +83,7 @@ io.on('connection', (socket) => {
         let x = realm.create('Message', {
             client: message.client,
             color: message.color,
+            room: message.room,
             data: message.data
         });
       });

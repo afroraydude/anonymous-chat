@@ -24,7 +24,6 @@ class App extends Component {
     return (
       <Switch>
         <Route path="/chat/:url" component={Main}/>
-        <Route path="/chat/:url/:room" component={Main}/>
         <Redirect path="/chat" to="/"/>
         <Route component={Start}/>
       </Switch>

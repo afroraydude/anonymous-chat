@@ -50,6 +50,7 @@ export class Chat extends Component {
     this.handleTextTyping = this
       .handleTextTyping
       .bind(this);
+    this.clearMessages = this.clearMessages.bind(this)
     socket.on("version", function (v) {
       if (v > parseInt(localStorage.getItem("version"))) {
         navigator
@@ -74,6 +75,7 @@ export class Chat extends Component {
     socket.on("identification", function (identification) {
       console.log(identification);
       this.setState({id: identification.id, color: identification.color, crypto: identification.crypto, status: "getting messages"});
+      this.props.resetRooms("x");
     }.bind(this));
     socket.on("messagelist", function (data) {
       console.log(data);
@@ -116,6 +118,7 @@ export class Chat extends Component {
       .state
       .messages
       .map(message => {
+        if (message.room === this.props.room || message.room === "#all") {
         return (
           <tr key={message.client} >
             <td className="noborder">
@@ -124,6 +127,7 @@ export class Chat extends Component {
             </td>
           </tr>
         )
+        }
       });
 
     var view = (
@@ -146,27 +150,40 @@ export class Chat extends Component {
     elem.scrollTop = elem.scrollHeight;
   }
 
+  clearMessages() {
+    this.setState({screen: "messages", messageView: <div></div>});
+  }
+
   sendMessage(event) {
     event.preventDefault();
     var socket = this.state.iosocket;
-    var algorithm = 'aes-256-ctr';
 
     /** TODO: Send messages encrypted
       var algorithm = 'aes-256-ctr';
       var x = createCipher(algorithm, this.state.crypto);
       var y = x.update(this.state.input, 'utf8', 'hex');
     */
-
-    var data = {
-      client: this.state.id,
-      color: this.state.color,
-      data: this.state.input
-    };
-    if (this.state.input.length >= 1 && this.state.input.length <= 250) {
-      console.log("did send message");
-      socket.emit("message", data);
+    if(!this.state.input.startsWith("/switch")) {
+      var data = {
+        client: this.state.id,
+        color: this.state.color,
+        room: this.props.room,
+        data: this.state.input
+      };
+      if (this.state.input.length >= 1 && this.state.input.length <= 250) {
+        console.log("did send message");
+        socket.emit("message", data);
+      } else {
+        console.log("did not send message because " + this.state.input.length);
+      }
     } else {
-      console.log("did not send message because " + this.state.input.length);
+      var x = this.state.input;
+      var room = x.split(" ")[1];
+      if (room && this.props.rooms.indexOf(room) > -1) {
+        this.props.switchRoom(room);
+        this.clearMessages();
+        this.updateMessages();
+      }
     }
     this.setState({input: ""})
   }
@@ -193,7 +210,7 @@ export class Chat extends Component {
             bottom: 0,
             height: 45
           }}>
-            <Form onSubmit={this.sendMessage} inline style={{width: "100%"}}>
+            <Form autocomplete="off" onSubmit={this.sendMessage} inline style={{width: "100%"}}>
               <FormGroup style={{width: "100%"}}>
                 <Input style={{width: "80%"}} type="text" name="text" id="text" placeholder="Place message here..." onChange={this.handleTextTyping} style={{marginLeft: 20}}
                   value={this.state.input}/>
@@ -221,6 +238,7 @@ export class Chat extends Component {
             height: 45
           }}>
             <Form
+              autocomplete="off"
               onSubmit={this.sendMessage}
               inline
               style={{
