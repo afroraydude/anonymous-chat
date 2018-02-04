@@ -86,7 +86,7 @@ export class Main extends Component {
       <div style={{height:"100%",width:"100%", overflowY:"hidden"}}>
         <Navbar dark expand="md">
             <NavbarBrand><img alt="logo" src={logo} width="250"></img></NavbarBrand>
-            <small>servercode: <code>{x}</code> room: <code>{this.state.rooms[this.state.room]}</code></small>
+            <small>server: <code>ironchat://{x}</code> room: <code>{this.state.rooms[this.state.room]}</code></small>
         </Navbar>
         <div style={{height:"100%",width:"100%"}} className="container-fluid row">
           <div className="col-md-1">

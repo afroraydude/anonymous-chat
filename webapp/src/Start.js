@@ -14,6 +14,13 @@ const b64EncodeUnicode = function(str) {
     }));
 }
 
+const b64DecodeUnicode = function (str) {
+  // Going backwards: from bytestream, to percent-encoding, to original string.
+  return decodeURIComponent(atob(str).split('').map(function (c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+}
+
 export class Start extends Component {
   constructor(props) {
     super(props);
@@ -28,15 +35,28 @@ export class Start extends Component {
   }
 
   checkForServer(event) {
-    event.preventDefault();
-    const socket = openSocket(this.state.url);
-    socket.on('connect_error', (error) => {
-      this.setState({isServer: false});
-    });
-    socket.on("serverinfo", function(info) {
-      console.log(info);
-      this.setState({isServer: true, serverData: info});
-    }.bind(this))
+    event.preventDefault(); 
+    if(this.state.url.startsWith("ironchat://")) {
+      var encode = this.state.url.split("ironchat://")[1]
+      var decode = b64DecodeUnicode(encode);
+      const socket = openSocket(decode);
+      socket.on('connect_error', (error) => {
+        this.setState({isServer: false});
+      });
+      socket.on("serverinfo", function(info) {
+        console.log(info);
+        this.setState({isServer: true, serverData: info, url: decode});
+      }.bind(this))
+    } else {
+      const socket = openSocket(this.state.url);
+      socket.on('connect_error', (error) => {
+        this.setState({isServer: false});
+      });
+      socket.on("serverinfo", function(info) {
+        console.log(info);
+        this.setState({isServer: true, serverData: info});
+      }.bind(this))
+    }
   }
 
   render() {
@@ -51,7 +71,7 @@ export class Start extends Component {
     } else if (this.state.isServer === false) {
       x = <Form onSubmit={this.checkForServer}>
         <FormGroup>
-            <Input type="url" name="url" placeholder="Enter server URL" value={this.state.url} onChange={this.changeUrl}/>
+          <Input type = "url" name = "url" placeholder = "Enter server URL" value={this.state.url} onChange = {this.changeUrl} />
           <Button type="submit" id="submit" style={{display: "block", margin: "0 auto", marginTop: 50}}>Connect to server</Button>
         </FormGroup>
         <p style={{color: "red"}}>Could not connect to server :(</p>

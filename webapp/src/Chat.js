@@ -94,6 +94,7 @@ export class Chat extends Component {
       var x = {
         client: "Client",
         color: "red",
+        room: "#all",
         data: "You have disconnected...re-establishing connection"
       }
       var y = this.state.messages;
