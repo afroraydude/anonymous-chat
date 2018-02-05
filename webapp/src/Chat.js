@@ -270,7 +270,7 @@ export class Chat extends Component {
               >
                 <Input
                   style={{
-                    width: "80%"
+                    width: "100%"
                   }}
                   type="text"
                   name="text"
@@ -282,15 +282,6 @@ export class Chat extends Component {
                   }}
                   value={this.state.input}
                 />
-                <Button
-                  type="submit"
-                  style={{
-                    marginLeft: 20
-                  }}
-                  value="Submit"
-                >
-                  Send message
-                </Button>
               </FormGroup>
             </Form>
           </div>
@@ -332,7 +323,7 @@ export class Chat extends Component {
               >
                 <Input
                   style={{
-                    width: "80%"
+                    width: "100%"
                   }}
                   type="text"
                   name="text"
@@ -344,15 +335,6 @@ export class Chat extends Component {
                   }}
                   value={this.state.input}
                 />
-                <Button
-                  type="submit"
-                  style={{
-                    marginLeft: 20
-                  }}
-                  value="Submit"
-                >
-                  Send message
-                </Button>
               </FormGroup>
             </Form>
           </div>

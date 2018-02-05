@@ -109,7 +109,7 @@ export class Main extends Component {
   render() {
     var x = this.props.match.params.url;
     return (
-      <div style={{ height: "100%", width: "100%", overflowY: "hidden" }}>
+      <div style={{ height: "100%", width: "100%"}}>
         <Navbar dark expand="md">
           <NavbarBrand>
             <img alt="logo" src={logo} width="250" />
@@ -120,11 +120,11 @@ export class Main extends Component {
           </small>
         </Navbar>
         <div
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "89%", width: "100%" }}
           className="container-fluid row"
         >
           <div className="col-sm-4 col-md-2">{this.state.roomview}</div>
-          <div style={{ height: "90%" }} className="col-sm-8 col-md-10">
+          <div style={{ height: "100%" }} className="col-sm-8 col-md-10">
             <Chat
               rooms={this.state.rooms}
               room={this.state.roomName}

@@ -125,7 +125,7 @@ export class Start extends Component {
         </Form>
       );
     } else {
-      x = <p>Loading chat...</p>;
+      x = <p>[Loading]</p>;
       window.location.href =
         window.location.protocol +
         "//" +
@@ -137,7 +137,7 @@ export class Start extends Component {
     }
     return (
       <div
-        class="container vertical center"
+        className="container vertical center"
         style={{ margin: "0 auto", width: "50%" }}
       >
         <img
@@ -147,6 +147,7 @@ export class Start extends Component {
           style={{ marginBottom: 50 }}
         />
         {x}
+        <small className="center">{"v"+localStorage.getItem("version")+"-pre-alpha"}</small>
       </div>
     );
   }
