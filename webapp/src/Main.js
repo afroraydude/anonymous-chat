@@ -48,7 +48,7 @@ export class Main extends Component {
     this.renderRooms = this.renderRooms.bind(this);
     this.resetRooms = this.resetRooms.bind(this);
     this.switchRoom = this.switchRoom.bind(this);
-    document.title = "IronChat - #default";
+    document.title = "Riddlet - #default";
   }
 
   componentDidMount() {
@@ -62,7 +62,7 @@ export class Main extends Component {
       var x = ["#default"];
       this.setState({ rooms: x });
       this.renderRooms("x");
-      document.title = "IronChat - #default";
+      document.title = "Riddlet - #default";
     }
   }
 
@@ -103,7 +103,7 @@ export class Main extends Component {
   switchRoom(room) {
       const x = this.state.rooms.indexOf(room);
       this.setState({ room: x, roomName: this.state.rooms[x] });
-      document.title = "IronChat - " + room;
+      document.title = "Riddlet - " + room;
   }
 
   render() {
@@ -115,7 +115,7 @@ export class Main extends Component {
             <img alt="logo" src={logo} width="250" />
           </NavbarBrand>
           <small>
-            server: <code>ironchat://{x}</code> (<a href={"ironchat://"+x}>Click here to open in Desktop app</a>) room:{" "}
+            server: <code>riddlet://{x}</code> (<a href={"riddlet://"+x}>Click here to open in Desktop app</a>) room:{" "}
             <code>{this.state.rooms[this.state.room]}</code>
           </small>
         </Navbar>

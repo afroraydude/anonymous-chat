@@ -50,7 +50,21 @@ export class Start extends Component {
 
   checkForServer(event) {
     event.preventDefault();
-    if (this.state.url.startsWith("ironchat://")) {
+    if (this.state.url.startsWith("riddlet://")) {
+      var encode = this.state.url.split("riddlet://")[1];
+      var decode = b64DecodeUnicode(encode);
+      const socket = openSocket(decode);
+      socket.on("connect_error", error => {
+        this.setState({ isServer: false });
+      });
+      socket.on(
+        "serverinfo",
+        function(info) {
+          console.log(info);
+          this.setState({ isServer: true, serverData: info, url: decode });
+        }.bind(this)
+      );
+    } else if (this.state.url.startsWith("ironchat://")) {
       var encode = this.state.url.split("ironchat://")[1];
       var decode = b64DecodeUnicode(encode);
       const socket = openSocket(decode);
