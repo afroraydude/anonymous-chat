@@ -7,12 +7,13 @@ const path = require('path')
 const url = require('url')
 
 console.log(process.argv)
+var server = "";
 if (process.argv[0].includes("electron")) {
-  var server = process.argv[2] ? process.argv[2] : process.argv[1]
+  server = process.argv[2] ? process.argv[2] : process.argv[1]
 } else {
-  var server = process.argv[1] ? process.argv[1] : "";
+  server = process.argv[1] ? process.argv[1] : "";
 }
-if(server.startsWith("ironchat://") && server) {
+if (server.startsWith("riddlet://") && server) {
   const url = server.substr(11);
     server = url;
 }
@@ -28,10 +29,9 @@ function createWindow () {
     width: 1280,
     height: 720,
     minHeight: 720,
-    minWidth: 1280,
-    icon: path.join(__dirname, 'logo-sm.png')
+    minWidth: 1280
   });
-  mainWindow.setTitle("IronChat");
+  mainWindow.setTitle("Riddlet");
   //mainWindow.webContents.openDevTools()
   mainWindow.setMenu(null);
   if (server) {
@@ -52,9 +52,10 @@ function createWindow () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  protocol.registerStringProtocol('ironchat', (request, callback) => {
+  protocol.registerStringProtocol('riddlet', (request, callback) => {
     const url = request.url.substr(11);
     server = url;
+    createWindow()
   })
   createWindow()
 })

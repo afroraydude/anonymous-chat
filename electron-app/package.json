@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build-win": "electron-packager ./ IronChat --arch=ia32 --icon=./windows.ico"
+    "build-win": "electron-packager ./ Riddlet --arch=ia32",
+    "build-win-old": "electron-packager ./ Riddlet --arch=ia32 --icon=./windows.ico"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
