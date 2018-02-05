@@ -11,8 +11,10 @@
   "dependencies": {
     "after": "^0.8.2",
     "dotenv": "^5.0.0",
+    "fast-ratelimit": "^2.1.8",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "install": "^0.10.4",
     "realm": "^2.2.6",
     "socket.io": "^2.0.4"
   }

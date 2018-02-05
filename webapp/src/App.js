@@ -6,7 +6,7 @@ import {Start} from './Start';
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 3)
+    localStorage.setItem("version", 4)
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
     }
@@ -24,6 +24,9 @@ class App extends Component {
     return (
       <Switch>
         <Route path="/chat/:url" component={Main}/>
+        {
+          // TODO: Server owner login
+        }
         <Redirect path="/chat" to="/"/>
         <Route component={Start}/>
       </Switch>

@@ -136,27 +136,6 @@ export class Chat extends Component {
   updateMessages() {
     var messages = this.state.messages.map(message => {
       if (message.room === this.props.room || message.room === "#all") {
-        if (message.data.includes("ironchat://")) {
-          var x = message.data.split("ironchat://")[0];
-          var y = message.data.split("ironchat://")[1];
-          var z = y.split(" ")[1];
-          y = y.split(" ")[0]
-          return (
-          <p
-            key={createHash("md5")
-              .update(message.id)
-              .digest("hex")}
-            style={{ fontSize: 12 }}
-          >
-            <span style={{ color: message.color }}>
-              Anonymous{" "}
-              <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{x}</span><a href={"ironchat://"+y}>Click to open server invite link in the IronChat desktop application</a> <span>{z}</span>
-          </p>
-        );
-        } else {
         return (
           <p
             key={createHash("md5")
@@ -172,7 +151,6 @@ export class Chat extends Component {
             </span>: <span>{message.data}</span>
           </p>
         );
-        }
       } else {
         console.log(
           "Message " +
@@ -196,7 +174,6 @@ export class Chat extends Component {
     });
     var elem = document.getElementById("data");
     elem.scrollTop = elem.scrollHeight;
-    console.log("Updated message display panel")
   }
 
   sendMessage(event) {
@@ -208,24 +185,38 @@ export class Chat extends Component {
       var x = createCipher(algorithm, this.state.crypto);
       var y = x.update(this.state.input, 'utf8', 'hex');
     */
-    var x = this.state.input;
-    var room = x.split(" ")[1];
-    if (!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) {
-      var data = { id: String(Date.now()), client: this.state.id, color: this.state.color, room: this.props.room, data: this.state.input };
-      console.log("did send message");
-      socket.emit("message", data);
+    if (!this.state.input.startsWith("/switch")) {
+      var data = {
+        id: String(Date.now()),
+        client: this.state.id,
+        color: this.state.color,
+        room: this.props.room,
+        data: this.state.input
+      };
+      if (this.state.input.length >= 1 && this.state.input.length <= 250) {
+        console.log("did send message");
+        socket.emit("message", data);
+      } else {
+        console.log("did not send message because " + this.state.input.length);
+      }
     } else {
       var x = this.state.input;
       var room = x.split(" ")[1];
-      this.setState({ messageView: <p>Perfoming room change</p> });
-        console.log("Changing room...");
+      if (room && this.props.rooms.indexOf(room) > -1) {
         this.props.switchRoom(room);
+        this.updateMessages();
         var messages = this.state.messages;
-        var newMessage = { id: String(Date.now()), client: "Client", color: "red", room: room, data: "Switched to room: " + room };
+        var newMessage = {
+          id: String(Date.now()),
+          client: "Client",
+          color: "red",
+          room: room,
+          data: "Switched to room: " + room
+        };
         messages.push(newMessage);
         this.setState({ messages: messages });
-        // Wait for everything to update then reload messages
-        setTimeout(this.updateMessages, 10)
+        this.updateMessages();
+      }
     }
     this.setState({ input: "" });
   }

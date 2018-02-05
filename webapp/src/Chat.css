@@ -2,3 +2,8 @@
   border-top: none !important;
   border-bottom: 1px solid #dee2e6;
 }
+
+.footform form div input {
+  display: block;
+  width: 70% !important;
+}

@@ -26,6 +26,13 @@ const MessageSchema = {
   }
 }
 
+const {FastRateLimit} = require('fast-ratelimit');
+
+var messageLimiter = new FastRateLimit({
+  threshold: 25, // available tokens over timespan 
+  ttl: 5 // time-to-live value of token bucket (in seconds) 
+});
+
 function makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,7 +42,12 @@ function makeid() {
     return text;
 }
 
-var serverInfo = {version: "3", title: "Test Server", rooms: ['/']};
+var serverInfo = {
+  version: "4", 
+  title: "Test Server", 
+  rooms: ['/'],
+  maxcharlen: parseInt(process.env.maxcharlen) || 500
+};
 
 io.on('connection', (socket) => {
   console.log("new socket with id "+socket.id+" has connected and is ready to recieve messages.");
@@ -48,7 +60,7 @@ io.on('connection', (socket) => {
   var colorChoice = colors[Math.floor(Math.random() * colors.length)];
   socket.emit("identification", {id: x, color: colorChoice, crypto: socket.crypto});
   socket.emit("messagelist", messages);
-  socket.emit("message", {client: "Server", color: "red", room: "#all", data: "Welcome!"});
+  socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Welcome!"});
   socket.emit("version", serverInfo.version);
   socket.emit("serverinfo", serverInfo);
   socket.on('disconnect', function () {
@@ -62,6 +74,8 @@ io.on('connection', (socket) => {
       messages.shift();
     }
 
+    var namespace = socket.id;
+
     /** TODO: encrypted sending and recievingh
       var xx = crypto.createDecipher(algorithm,socket.crypto);
       var yy = xx.update(message.data, 'hex', 'utf8');
@@ -74,21 +88,28 @@ io.on('connection', (socket) => {
         socket.emit("join", room);
         socket.join(room);
       } else {
-        socket.emit("message", {client: "Server", color: "red", room: "#all", data: "Rooms must start with the \"#\" sign (ex: #default)"})
+        socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Rooms must start with the \"#\" sign (ex: #default)"})
       }
     } else {
-      messages.push(message);
-      let realm = new Realm({schema: [MessageSchema]});
-      realm.write(() => {
-        let x = realm.create('Message', {
-            client: message.client,
-            color: message.color,
-            room: message.room,
-            data: message.data
-        });
-      });
-      io.emit("message", message);
-      console.log("sent a message");
+      if (true) {
+          let realm = new Realm({schema: [MessageSchema]});
+          realm.write(() => {
+            let x = realm.create('Message', {
+              client: message.client || crypto.createHash('md4').update(socket.id).digest("hex"),
+              color: message.color || "black",
+              room: message.room || "#default",
+              data: message.data || ""
+            });
+          });
+          if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
+            io.emit("message", message);
+            messages.push(message);
+          } else {
+            socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message is too long, the server did not send it. Contact the server admin to change the server message max character length ('maxcharlen')"})
+          }
+          console.log("processed a message");
+          //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
+        }
     }
   });
 });
@@ -97,7 +118,7 @@ setInterval(function () {
     io.emit("version", serverInfo.version);
 }, 60000);
 
-const port = process.env.port || 1234;
+const port = process.env.port || 8080;
 app.listen(port);
 console.log('listening on port ', port);
 

@@ -26,8 +26,8 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
     width: 1280,
-    height: 1024,
-    minHeight: 1024,
+    height: 720,
+    minHeight: 720,
     minWidth: 1280,
     icon: path.join(__dirname, 'logo-sm.png')
   });
