@@ -120,11 +120,11 @@ export class Main extends Component {
           </small>
         </Navbar>
         <div
-          style={{ height: "89%", width: "100%" }}
+          style={{ height: "86%", width: "100%" }}
           className="container-fluid row"
         >
-          <div className="col-sm-4 col-md-2">{this.state.roomview}</div>
-          <div style={{ height: "100%" }} className="col-sm-8 col-md-10">
+          <div className="col-sm-4 col-md-2" style={{ height: "100%" }}>{this.state.roomview}</div>
+          <div className="col-sm-8 col-md-10" style={{ height: "100%" }}>
             <Chat
               rooms={this.state.rooms}
               room={this.state.roomName}

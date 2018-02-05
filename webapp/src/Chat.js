@@ -204,11 +204,7 @@ export class Chat extends Component {
       }
     });
 
-    var view = (
-      <div key={this.state.key}>
-        <div id="data">{messages}</div>
-      </div>
-    );
+    var view = <div id="data" style={{overflowY: "scroll", height: "90%"}}>{messages}</div>
     this.setState({
       screen: "messages",
       messageView: view,
@@ -312,10 +308,8 @@ export class Chat extends Component {
         <div
           style={{
             width: "100%",
-            height: "90%",
-            overflowY: "scroll"
+            height: "inherit"
           }}
-          id="data"
         >
           {this.state.messageView}
           <div
