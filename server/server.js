@@ -26,11 +26,11 @@ const MessageSchema = {
   }
 }
 
-const {FastRateLimit} = require('fast-ratelimit');
+var FastRateLimit = require("fast-ratelimit").FastRateLimit;
 
 var messageLimiter = new FastRateLimit({
-  threshold: 25, // available tokens over timespan 
-  ttl: 5 // time-to-live value of token bucket (in seconds) 
+      threshold : 6, // available tokens over timespan
+      ttl       : 60  // time-to-live value of token bucket (in seconds)
 });
 
 function makeid(chars) {
@@ -165,14 +165,19 @@ io.on('connection', (socket) => {
               data: message.data || ""
             });
           });
-          if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
-            message.client = decoded.name;
-            message.color = decoded.color;
-            io.emit("message", message);
-            messages.push(message);
-          } else {
-            socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message is too long, the server did not send it. Contact the server admin to change the server message max character length ('maxcharlen')"})
-          }
+          messageLimiter.consume(namespace)
+              .then(() => {
+                  if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
+                    message.client = decoded.name;
+                    message.color = decoded.color;
+                    io.emit("message", message);
+                    messages.push(message);
+                  } else {
+                    socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message is too long, the server did not send it. Contact the server admin to change the server message max character length ('maxcharlen')"})
+                  }
+                }.catch(() => {
+                  console.log("Rate limiting");
+                }
           console.log("processed a message");
           //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
       } catch(err) {
