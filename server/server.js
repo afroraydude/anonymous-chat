@@ -9,9 +9,9 @@ var httpsoptions = {
 require('dotenv').config();
 app = http.createServer();
 io = require('socket.io')(app);
-require('dotenv').config();
 var crypto = require('crypto');
 var algorithm = 'aes-256-ctr';
+var jwt = require("jsonwebtoken");
 sockets = [];
 messages = [];
 var Realm = require('realm');
@@ -33,14 +33,18 @@ var messageLimiter = new FastRateLimit({
   ttl: 5 // time-to-live value of token bucket (in seconds) 
 });
 
-function makeid() {
+function makeid(chars) {
+    var len = chars || 15;
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < len; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
 }
+
+var code = process.env.jwtcode || makeid(25);
+console.log(code)
 
 var serverInfo = {
   version: "4", 
@@ -50,19 +54,80 @@ var serverInfo = {
 };
 
 io.on('connection', (socket) => {
-  console.log("new socket with id "+socket.id+" has connected and is ready to recieve messages.");
-  var x = crypto.createHash('md4').update(socket.id).digest("hex");
-  console.log("socket with id "+socket.id+"has been sent it's anonid which is "+x);
-  socket.name = String(x);
-  socket.crypto = makeid();
-  console.log(socket.crypto);
-  sockets.push(socket);
-  var colorChoice = colors[Math.floor(Math.random() * colors.length)];
-  socket.emit("identification", {id: x, color: colorChoice, crypto: socket.crypto});
-  socket.emit("messagelist", messages);
-  socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Welcome!"});
-  socket.emit("version", serverInfo.version);
-  socket.emit("serverinfo", serverInfo);
+  socket.emit("serverinfo", "nullbyte");
+  socket.on("identification", function(token) {
+    var decoded;
+    try {
+      decoded = jwt.verify(token, code);
+    } catch (err) {
+      console.log("Someone tried to connect with invalid token, reasigning token");
+    }
+    if (decoded) {
+      socket.name = decoded.name;
+      socket.emit("identification", {
+        id: decoded.name,
+        color: decoded.color,
+        token: jwt.sign(decoded, code)
+      });
+      socket.emit("messagelist", messages);
+      socket.emit("message", {
+        id: String(Date.now()),
+        client: "Server",
+        color: "red",
+        room: "#all",
+        data: "Welcome!"
+      });
+      socket.emit("version", serverInfo.version);
+    } else {
+      socket.name = makeid(15);
+      var colorChoice = colors[Math.floor(Math.random() * colors.length)];
+      token = jwt.sign({name: socket.name, color: colorChoice}, code)
+      socket.emit("identification", {
+        id: x,
+        color: colorChoice,
+        token: token
+      });
+      socket.emit("messagelist", messages);
+      socket.emit("message", {
+        id: String(Date.now()),
+        client: "Server",
+        color: "red",
+        room: "#all",
+        data: "Welcome!"
+      });
+      socket.emit("version", serverInfo.version);
+    }
+    sockets.push(socket);
+    socket.join("#default");
+  });
+
+  socket.on("noid", function() {
+    console.log("new user");
+    var x = makeid(15);
+    console.log("made id");
+    socket.name = x;
+    console.log("set name");
+    var colorChoice = colors[Math.floor(Math.random() * colors.length)];
+    console.log("set color");
+    token = jwt.sign({ name: socket.name, color: colorChoice }, code);
+    console.log("created token");
+    socket.emit("identification", {
+      id: x,
+      color: colorChoice,
+      token: token
+    });
+    console.log("sent identification");
+    socket.emit("messagelist", messages);
+    socket.emit("message", {
+      id: String(Date.now()),
+      client: "Server",
+      color: "red",
+      room: "#all",
+      data: "Welcome!"
+    });
+    socket.emit("version", serverInfo.version);
+    socket.join("#default");
+  })
   socket.on('disconnect', function () {
     sockets.splice(sockets.indexOf(socket), 1);
     console.log('client left');
@@ -73,15 +138,12 @@ io.on('connection', (socket) => {
     if (messages.length > maxmsg) {
       messages.shift();
     }
-
-    var namespace = socket.id;
-
     /** TODO: encrypted sending and recievingh
       var xx = crypto.createDecipher(algorithm,socket.crypto);
       var yy = xx.update(message.data, 'hex', 'utf8');
       message.data = yy;
     */
-    socket.join("#default");
+    
     if (message.data.startsWith("/join")) {
       var room = message.data.split(" ")[1];
       if (room.startsWith("#")) {
@@ -91,17 +153,21 @@ io.on('connection', (socket) => {
         socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Rooms must start with the \"#\" sign (ex: #default)"})
       }
     } else {
-      if (true) {
+      var decoded;
+      try {
+          decoded = jwt.verify(message.token, code)
           let realm = new Realm({schema: [MessageSchema]});
           realm.write(() => {
             let x = realm.create('Message', {
-              client: message.client || crypto.createHash('md4').update(socket.id).digest("hex"),
-              color: message.color || "black",
+              client: decoded.name || crypto.createHash('md4').update(socket.id).digest("hex"),
+              color: decoded.color || "black",
               room: message.room || "#default",
               data: message.data || ""
             });
           });
           if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
+            message.client = decoded.name;
+            message.color = decoded.color;
             io.emit("message", message);
             messages.push(message);
           } else {
@@ -109,7 +175,9 @@ io.on('connection', (socket) => {
           }
           console.log("processed a message");
           //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
-        }
+      } catch(err) {
+        // err
+      }
     }
   });
 });

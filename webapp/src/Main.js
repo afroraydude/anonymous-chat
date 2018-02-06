@@ -25,6 +25,11 @@ const b64DecodeUnicode = function(str) {
 export class Main extends Component {
   constructor(props) {
     super(props);
+    if(!localStorage.getItem("config")) {
+      var config = {servers: []};
+      var json = JSON.stringify(config);
+      localStorage.setItem("config", json);
+    }
     this.state = {
       rooms: ["#default"],
       room: 0,

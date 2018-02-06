@@ -43,12 +43,26 @@ export class Chat extends Component {
       status: "connecting",
       iosocket: socket,
       messages: [],
-      messageView: <div />,
+      messageView: null,
       key: Math.random()
     };
     this.updateMessages = this.updateMessages.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.handleTextTyping = this.handleTextTyping.bind(this);
+
+    var config = JSON.parse(localStorage.getItem("config"));
+
+    var config = JSON.parse(localStorage.getItem("config"));
+    var servers = config.servers;
+    var server = servers.filter(function(server) {
+        return server.id === this.props.url;
+      }.bind(this))[0];
+    if (server) {
+      socket.emit("identification", server.token);
+    } else {
+      socket.emit("noid");
+    }
+
     socket.on(
       "version",
       function(v) {
@@ -70,19 +84,33 @@ export class Chat extends Component {
         }
       }.bind(this)
     );
-    socket.on(
-      "identification",
-      function(identification) {
+    socket.on("identification", function(identification) {
         console.log(identification);
+        var config = JSON.parse(localStorage.getItem("config"));
+        var servers = config.servers;
+        var server = {id: url, token: identification.token}
+        try {
+          var originalserver = servers.filter(function(server) {
+            console.log(window.location.pathname.split("/")[window.location.pathname.split("/").length -1])
+            return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length -1];
+          }.bind(this))[0];
+          servers.splice(servers.indexOf(originalserver), 1);
+        } catch(err) {
+
+        }
+        servers.push(server);
+        config = {servers: servers};
+        config = JSON.stringify(config)
+        console.log(config)
+        localStorage.setItem("config", config);
         this.setState({
           id: identification.id,
           color: identification.color,
-          crypto: identification.crypto,
+          token: identification.token,
           status: "getting messages"
         });
         this.props.resetRooms("x");
-      }.bind(this)
-    );
+      }.bind(this));
     socket.on(
       "messagelist",
       function(data) {
@@ -224,13 +252,18 @@ export class Chat extends Component {
       var x = createCipher(algorithm, this.state.crypto);
       var y = x.update(this.state.input, 'utf8', 'hex');
     */
+    var config = JSON.parse(localStorage.getItem("config"));
+    var servers = config.servers;
+    var server = servers.filter(function(server) {
+      return server.id === this.props.url;
+    }.bind(this))[0];
     var x = this.state.input;
     var room = x.split(" ")[1];
-    if (!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) {
-      var data = { id: String(Date.now()), client: this.state.id, color: this.state.color, room: this.props.room, data: this.state.input };
+    if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
+      var data = { id: String(Date.now()), token: server.token, room: this.props.room, data: this.state.input };
       console.log("did send message");
       socket.emit("message", data);
-    } else {
+    } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;
       var room = x.split(" ")[1];
       this.setState({ messageView: <p>Perfoming room change</p> });
