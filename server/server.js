@@ -47,7 +47,7 @@ var code = process.env.jwtcode || makeid(25);
 console.log(code)
 
 var serverInfo = {
-  version: "4", 
+  version: "5", 
   title: "Test Server", 
   rooms: ['/'],
   maxcharlen: parseInt(process.env.maxcharlen) || 500
