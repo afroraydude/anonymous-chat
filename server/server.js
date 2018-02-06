@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
       var colorChoice = colors[Math.floor(Math.random() * colors.length)];
       token = jwt.sign({name: socket.name, color: colorChoice}, code)
       socket.emit("identification", {
-        id: x,
+        id: socket.name,
         color: colorChoice,
         token: token
       });
@@ -176,7 +176,31 @@ io.on('connection', (socket) => {
           console.log("processed a message");
           //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
       } catch(err) {
-        // err
+        console.log("new user");
+        var x = makeid(15);
+        console.log("made id");
+        socket.name = x;
+        console.log("set name");
+        var colorChoice = colors[Math.floor(Math.random() * colors.length)];
+        console.log("set color");
+        token = jwt.sign({ name: socket.name, color: colorChoice }, code);
+        console.log("created token");
+        socket.emit("identification", {
+          id: x,
+          color: colorChoice,
+          token: token
+        });
+        console.log("sent identification");
+        socket.emit("messagelist", messages);
+        socket.emit("message", {
+          id: String(Date.now()),
+          client: "Server",
+          color: "red",
+          room: "#all",
+          data: "Welcome!"
+        });
+        socket.emit("version", serverInfo.version);
+        socket.join("#default");
       }
     }
   });

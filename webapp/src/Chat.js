@@ -50,18 +50,18 @@ export class Chat extends Component {
     this.sendMessage = this.sendMessage.bind(this);
     this.handleTextTyping = this.handleTextTyping.bind(this);
 
-    var config = JSON.parse(localStorage.getItem("config"));
-
-    var config = JSON.parse(localStorage.getItem("config"));
-    var servers = config.servers;
-    var server = servers.filter(function(server) {
-        return server.id === this.props.url;
-      }.bind(this))[0];
-    if (server) {
-      socket.emit("identification", server.token);
-    } else {
-      socket.emit("noid");
-    }
+    socket.on("reconnect", function() {
+      var config = JSON.parse(localStorage.getItem("config"));
+      var servers = config.servers;
+      var server = servers.filter(function(server) {
+          return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length - 1];
+        }.bind(this))[0];
+      if (server) {
+        socket.emit("identification", server.token);
+      } else {
+        socket.emit("noid");
+      }
+    });
 
     socket.on(
       "version",
