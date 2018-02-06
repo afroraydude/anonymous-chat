@@ -1,4 +1,4 @@
-var Riddlet = function(app) {
+var Riddlet = function(io) {
   http = require("http");
   //fs = require('fs');
   /*
@@ -8,7 +8,9 @@ var httpsoptions = {
 };
 */
   require("dotenv").config();
+  
   io = require("socket.io")(app);
+
   var crypto = require("crypto");
   var algorithm = "aes-256-ctr";
   var jwt = require("jsonwebtoken");
@@ -36,6 +38,7 @@ var httpsoptions = {
   var serverInfo = { version: "6", title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500 };
 
   io.on("connection", socket => {
+    console.log("connection")
     socket.emit("serverinfo", serverInfo);
     socket.on("identification", function(token) {
       require("./handlers/auth").RiddletIdentification(token, io, socket, sockets, messages, code, serverInfo);
