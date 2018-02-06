@@ -175,9 +175,9 @@ io.on('connection', (socket) => {
                   } else {
                     socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message is too long, the server did not send it. Contact the server admin to change the server message max character length ('maxcharlen')"})
                   }
-                }.catch(() => {
+                }).catch(() => {
                   console.log("Rate limiting");
-                }
+                })
           console.log("processed a message");
           //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
       } catch(err) {
