@@ -53,6 +53,7 @@ export class Main extends Component {
     this.renderRooms = this.renderRooms.bind(this);
     this.resetRooms = this.resetRooms.bind(this);
     this.switchRoom = this.switchRoom.bind(this);
+    this.leaveRoom = this.leaveRoom.bind(this);
     document.title = "Riddlet - #default";
   }
 
@@ -69,22 +70,6 @@ export class Main extends Component {
       this.renderRooms("x");
       document.title = "Riddlet - #default";
     }
-  }
-
-  joinRoom(room) {
-    if (room) {
-      if (this.state.rooms.indexOf(room) === -1) {
-        var x = this.state.rooms;
-        x.push(room);
-        this.setState({ rooms: x });
-        this.renderRooms();
-      }
-    }
-  }
-
-  shouldComponentUpdate() {
-    return true
-    console.log("ran a render");
   }
 
   renderRooms() {
@@ -109,6 +94,33 @@ export class Main extends Component {
       const x = this.state.rooms.indexOf(room);
       this.setState({ room: x, roomName: this.state.rooms[x] });
       document.title = "Riddlet - " + room;
+  }
+
+  joinRoom(room) {
+    if (room) {
+      if (this.state.rooms.indexOf(room) === -1) {
+        var x = this.state.rooms;
+        x.push(room);
+        this.setState({ rooms: x });
+        this.renderRooms();
+      }
+    }
+  }
+
+  leaveRoom(room) {
+    console.log("a done")
+    if (room) {
+      console.log("b done")
+      if (this.state.rooms.indexOf(room) > -1) {
+        console.log("c done")
+        var x = this.state.rooms;
+        x.splice(x.indexOf(room), 1);
+        this.setState({rooms: x, room: 0, roomName: x[0]});
+        setTimeout(this.renderRooms, 100);
+      } else {
+        console.log("d done")
+      }
+    }
   }
 
   render() {
@@ -137,6 +149,7 @@ export class Main extends Component {
               switchRoom={this.switchRoom}
               joinRoom={this.joinRoom}
               resetRooms={this.resetRooms}
+              leaveRoom={this.leaveRoom}
             />
           </div>
         </div>

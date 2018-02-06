@@ -26,6 +26,12 @@ const b64DecodeUnicode = function(str) {
   );
 };
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+
 export class Chat extends Component {
   constructor(props) {
     super(props);
@@ -140,7 +146,7 @@ export class Chat extends Component {
       "disconnect",
       function() {
         var x = {
-          id: String(Date.now()),
+          id: String(Date.now() +""+getRandomInt(10000, 99999)),
           client: "Client",
           color: "red",
           room: "#all",
@@ -170,6 +176,29 @@ export class Chat extends Component {
         this.props.joinRoom(room);
       }.bind(this)
     );
+    socket.on("leave", function(room) {
+      console.log(room);
+      if (this.props.rooms.length === 1) {
+        console.log("WOAH THERE IS ONLY ONE ROOM");
+        var messages = this.state.messages;
+        var newMessage = {
+          id: String(Date.now() + "" + getRandomInt(10000, 99999)),
+          client: "Client",
+          color: "red",
+          room: room,
+          data: "Rejoining room"
+        };
+        messages.push(newMessage);
+        this.setState({
+          messages: messages
+        });
+        var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: `/join ${room}` };
+        socket.emit("message", data)
+      } else {
+        console.log("deleting room from list")
+        this.props.leaveRoom(room);
+      }
+    }.bind(this))
   }
 
   componentDidMount() {
@@ -185,10 +214,8 @@ export class Chat extends Component {
           var z = y.split(" ")[1];
           y = y.split(" ")[0]
           return (
-          <p
-            key={createHash("md5")
-              .update(message.id)
-              .digest("hex")}
+          <div
+            key={message.id}
             style={{ fontSize: 12 }}
           >
             <span style={{ color: message.color }}>
@@ -197,7 +224,7 @@ export class Chat extends Component {
                 <code>[{message.client}]</code>
               </small>
             </span>: <span>{x}</span><a href={"riddlet://"+y}>Click to open server invite link in the Riddlet desktop application</a> <span>{z}</span>
-          </p>
+          </div>
         );
         } else if (message.data.includes("ironchat://")) {
           var x = message.data.split("ironchat://")[0];
@@ -205,10 +232,8 @@ export class Chat extends Component {
           var z = y.split(" ")[1];
           y = y.split(" ")[0]
           return (
-          <p
-            key={createHash("md5")
-              .update(message.id)
-              .digest("hex")}
+          <div
+            key={message.id}
             style={{ fontSize: 12 }}
           >
             <span style={{ color: message.color }}>
@@ -217,14 +242,12 @@ export class Chat extends Component {
                 <code>[{message.client}]</code>
               </small>
             </span>: <span>{x}</span><a href={"ironchat://"+y}>Click to open server invite link in the Riddlet desktop application</a> <span>{z}</span>
-          </p>
+          </div>
         );
         } else {
         return (
           <p
-            key={createHash("md5")
-              .update(message.id)
-              .digest("hex")}
+            key={message.id}
             style={{ fontSize: 12 }}
           >
             <span style={{ color: message.color }}>
@@ -238,10 +261,7 @@ export class Chat extends Component {
         }
       } else {
         console.log(
-          "Message " +
-            createHash("md5")
-              .update(message.id)
-              .digest("hex") +
+          "Message " + message.id +
             " is from a different channel"
         );
       }
@@ -275,7 +295,7 @@ export class Chat extends Component {
     var x = this.state.input;
     var room = x.split(" ")[1];
     if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
-      var data = { id: String(Date.now()), token: server.token, room: this.props.room, data: this.state.input };
+      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: this.state.input };
       console.log("did send message");
       socket.emit("message", data);
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
@@ -285,7 +305,13 @@ export class Chat extends Component {
         console.log("Changing room...");
         this.props.switchRoom(room);
         var messages = this.state.messages;
-        var newMessage = { id: String(Date.now()), client: "Client", color: "red", room: room, data: "Switched to room: " + room };
+        var newMessage = {
+          id: String(Date.now() +""+getRandomInt(10000, 99999)),
+          client: "Client",
+          color: "red",
+          room: room,
+          data: "Switched to room: " + room
+        };
         messages.push(newMessage);
         this.setState({ messages: messages });
         // Wait for everything to update then reload messages
