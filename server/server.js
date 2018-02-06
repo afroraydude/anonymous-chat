@@ -47,8 +47,8 @@ var code = process.env.jwtcode || makeid(25);
 console.log(code)
 
 var serverInfo = {
-  version: "5", 
-  title: "Test Server", 
+  version: "5",
+  title: "Test Server",
   rooms: ['/'],
   maxcharlen: parseInt(process.env.maxcharlen) || 500
 };
@@ -143,7 +143,7 @@ io.on('connection', (socket) => {
       var yy = xx.update(message.data, 'hex', 'utf8');
       message.data = yy;
     */
-    
+
     if (message.data.startsWith("/join")) {
       var room = message.data.split(" ")[1];
       if (room.startsWith("#")) {
@@ -165,6 +165,7 @@ io.on('connection', (socket) => {
               data: message.data || ""
             });
           });
+          var namespace = decoded.token
           messageLimiter.consume(namespace)
               .then(() => {
                   if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
@@ -196,13 +197,12 @@ io.on('connection', (socket) => {
           token: token
         });
         console.log("sent identification");
-        socket.emit("messagelist", messages);
         socket.emit("message", {
           id: String(Date.now()),
           client: "Server",
           color: "red",
           room: "#all",
-          data: "Welcome!"
+          data: "Your user data was corrupted, you have been re-registered with new data."
         });
         socket.emit("version", serverInfo.version);
         socket.join("#default");
