@@ -32,7 +32,7 @@ export class Chat extends Component {
     console.log(this.props.url);
     const url = this.props.url;
     console.log(b64DecodeUnicode(url));
-    const socket = openSocket(b64DecodeUnicode(url));
+    const socket = openSocket(b64DecodeUnicode(url), {secure: true});
     this.state = {
       url: b64DecodeUnicode(url),
       screen: "init",
@@ -49,6 +49,17 @@ export class Chat extends Component {
     this.updateMessages = this.updateMessages.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.handleTextTyping = this.handleTextTyping.bind(this);
+
+    var config = JSON.parse(localStorage.getItem("config"));
+    var servers = config.servers;
+    var server = servers.filter(function(server) {
+        return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length - 1];
+      }.bind(this))[0];
+    if (server) {
+      socket.emit("identification", server.token);
+    } else {
+      socket.emit("noid");
+    }
 
     socket.on("reconnect", function() {
       var config = JSON.parse(localStorage.getItem("config"));
@@ -159,6 +170,10 @@ export class Chat extends Component {
         this.props.joinRoom(room);
       }.bind(this)
     );
+  }
+
+  componentDidMount() {
+    
   }
 
   updateMessages() {
