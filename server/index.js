@@ -47,7 +47,7 @@ var httpsoptions = {
     });
 
     socket.on("noid", function() {
-      require("./handlers/auth").RiddletNonIdentification(token, io, socket, sockets, messages, code, serverInfo);
+      require("./handlers/auth").RiddletNonIdentification(io, socket, sockets, messages, code, serverInfo);
     });
     socket.on("disconnect", function() {
       sockets.splice(sockets.indexOf(socket), 1);

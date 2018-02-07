@@ -15,6 +15,7 @@ import {
   NavbarBrand,
   InputGroup
 } from "reactstrap";
+import { Message } from "./Message";
 
 const b64DecodeUnicode = function(str) {
   // Going backwards: from bytestream, to percent-encoding, to original string.
@@ -41,9 +42,11 @@ export class Chat extends Component {
     const url = this.props.url;
     console.log(b64DecodeUnicode(url));
     const socket = openSocket(b64DecodeUnicode(url), {secure: true});
+
     this.state = {
       url: b64DecodeUnicode(url),
       screen: "init",
+      screenshow: null,
       input: "",
       id: "",
       color: "",
@@ -135,7 +138,6 @@ export class Chat extends Component {
       function(data) {
         console.log(data);
         this.setState({ messages: data, status: "connected" });
-        this.updateMessages();
       }.bind(this)
     );
     socket.on("notif", function() {
@@ -201,82 +203,79 @@ export class Chat extends Component {
         this.props.leaveRoom(room);
       }
     }.bind(this))
+    this.updateScreen = this.updateScreen.bind(this);
   }
 
   componentDidMount() {
-    
+    console.log("cdm")
+    var screen = (
+    <div style={{ width: "100%", height: "inherit" }}>
+          {this.state.messageView}
+          <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50 }}>
+            <Form
+              autoComplete="off"
+              onSubmit={this.sendMessage}
+              inline
+              style={{
+                width: "100%"
+              }}
+            >
+              <FormGroup
+                style={{
+                  width: "100%"
+                }}
+              >
+                <Input
+                  style={{
+                    width: "100%"
+                  }}
+                  type="text"
+                  name="text"
+                  id="text"
+                  placeholder="Place message here..."
+                  onChange={this.handleTextTyping}
+                  style={{
+                    marginLeft: 20, marginTop: 5
+                  }}
+                  value={this.state.input}
+                />
+              </FormGroup>
+            </Form>
+          </div>
+                </div> )
+      this.setState({screenshow: screen})
+    window.addEventListener("resize", this.updateScreen);
+  }
+
+  
+  updateScreen() {
+    console.log("us")
+    var screen = (
+      <div style={{ width: "100%", height: "inherit" }}>
+          {this.state.messageView}
+                </div> )
+      this.setState({screenshow: screen})
   }
 
   updateMessages() {
+    console.log("um")
     var messages = this.state.messages.map(message => {
-      if (message.room === this.props.room || message.room === "#all") {
-        if (message.data.includes("riddlet://")) {
-          var x = message.data.split("riddlet://")[0];
-          var y = message.data.split("riddlet://")[1];
-          var z = y.split(" ")[1];
-          y = y.split(" ")[0]
-          return (
-          <div
-            key={message.id}
-            style={{ fontSize: 12 }}
-          >
-            <span style={{ color: message.color }}>
-              Anonymous{" "}
-              <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{x}</span><a href={"riddlet://"+y}>Click to open server invite link in the Riddlet desktop application</a> <span>{z}</span>
-          </div>
-        );
-        } else if (message.data.includes("ironchat://")) {
-          var x = message.data.split("ironchat://")[0];
-          var y = message.data.split("ironchat://")[1];
-          var z = y.split(" ")[1];
-          y = y.split(" ")[0]
-          return (
-          <div
-            key={message.id}
-            style={{ fontSize: 12 }}
-          >
-            <span style={{ color: message.color }}>
-              Anonymous{" "}
-              <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{x}</span><a href={"ironchat://"+y}>Click to open server invite link in the Riddlet desktop application</a> <span>{z}</span>
-          </div>
-        );
-        } else {
-        return (
-          <p
-            key={message.id}
-            style={{ fontSize: 12 }}
-          >
-            <span style={{ color: message.color }}>
-              Anonymous{" "}
-              <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{message.data}</span>
-          </p>
-        );
-        }
-      } else {
-        console.log(
-          "Message " + message.id +
-            " is from a different channel"
-        );
-      }
+      return (<Message message={message} room={this.props.room} />)
     });
 
-    var view = <div id="data" style={{overflowY: "scroll", height: "90%"}}>{messages}</div>
+    var view = <div id="data" style={{overflowY: "scroll", height: window.innerHeight - 100 }}>{messages}</div>
     this.setState({
       screen: "messages",
       messageView: view,
       key: Math.random()
     });
+    try {
     var elem = document.getElementById("data");
     elem.scrollTop = elem.scrollHeight;
+    } catch(err) {
+
+    }
+    setTimeout(this.updateScreen(), 100)
     console.log("Updated message display panel")
   }
 
@@ -328,25 +327,10 @@ export class Chat extends Component {
   }
 
   render() {
-    var screen = "null";
-    if (this.state.screen === "init") {
-      screen = (
-        <div
-          style={{
-            height: "100%",
-            width: "100%"
-          }}
-        >
-          <div
-            className="footform"
-            style={{
-              width: "100%",
-              display: "block",
-              position: "absolute",
-              bottom: 0,
-              height: 45
-            }}
-          >
+    console.log("r")
+    return <div style={{ height: "100%" }}>
+    {this.state.screenshow}
+    <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50 }}>
             <Form
               autoComplete="off"
               onSubmit={this.sendMessage}
@@ -370,51 +354,12 @@ export class Chat extends Component {
                   placeholder="Place message here..."
                   onChange={this.handleTextTyping}
                   style={{
-                    marginLeft: 20
+                    marginLeft: 20, marginTop: 5
                   }}
                   value={this.state.input}
                 />
               </FormGroup>
             </Form>
-          </div>
-        </div>
-      );
-    } else if (this.state.screen === "messages") {
-      screen = <div style={{ width: "100%", height: "inherit" }}>
-          {this.state.messageView}
-          <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 45 }}>
-            <Form
-              autoComplete="off"
-              onSubmit={this.sendMessage}
-              inline
-              style={{
-                width: "100%"
-              }}
-            >
-              <FormGroup
-                style={{
-                  width: "100%"
-                }}
-              >
-                <Input
-                  style={{
-                    width: "100%"
-                  }}
-                  type="text"
-                  name="text"
-                  id="text"
-                  placeholder="Place message here..."
-                  onChange={this.handleTextTyping}
-                  style={{
-                    marginLeft: 20
-                  }}
-                  value={this.state.input}
-                />
-              </FormGroup>
-            </Form>
-          </div>
-        </div>;
-    }
-    return <div style={{ height: "100%" }}>{screen}</div>;
+          </div></div>;
   }
 }

@@ -30,8 +30,12 @@ export class DesktopConfirm extends Component {
       console.log(serverinfo)
       this.setState({serverinfo: serverinfo})
     }.bind(this))
+    var screen = "default";
+    socket.on("connect_error", error => {
+      screen = "fail"
+    });
     this.join = this.join.bind(this)
-    this.state = { modal: true };
+    this.state = { modal: true, screen: screen };
   }
 
   join() {
@@ -39,7 +43,12 @@ export class DesktopConfirm extends Component {
   }
 
   render() {
-    var x;
+    var x = (
+      <div class="center vertical">
+        <img src={logo} alt="logo" />
+        <h3 style={{ marginTop: 50 }}>Could not connect to server</h3>;
+      </div>
+    );
     if (this.state.serverinfo) {
     x = <Modal isOpen={this.state.modal} className={this.props.className}>
         <ModalBody>
@@ -61,8 +70,6 @@ export class DesktopConfirm extends Component {
           </Button>
         </ModalFooter>
       </Modal>;
-  } else {
-    x = null 
   }
     return (
       <div>{x}</div>

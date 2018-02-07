@@ -2,6 +2,24 @@ var Realm = require("realm");
 var FastRateLimit = require("fast-ratelimit").FastRateLimit;
 var jwt = require("jsonwebtoken");
 
+const colors = [
+  "blue",
+  "beige",
+  "green",
+  "olive",
+  "purple",
+  "black",
+  "brown",
+  "cadetblue",
+  "coral",
+  "darkgray",
+  "gray",
+  "DarkKhaki",
+  "DarkSlateBlue",
+  "SlateBlue",
+  "Tomato"
+];
+
 function makeid(chars) {
   var len = chars || 15;
   var text = "";
@@ -39,6 +57,7 @@ function RiddletIdentification(token, io, socket, sockets, messages, code, serve
   } else {
     socket.name = makeid(15);
     var colorChoice = colors[Math.floor(Math.random() * colors.length)];
+    console.log(colorChoice);
     token = jwt.sign({ name: socket.name, color: colorChoice }, code);
     socket.emit("identification", {
       id: socket.name,

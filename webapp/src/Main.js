@@ -30,15 +30,18 @@ export class Main extends Component {
       var json = JSON.stringify(config);
       localStorage.setItem("config", json);
     }
+
     this.state = {
       rooms: ["#default"],
       room: 0,
+      server: this.props.match.params.url,
       roomName: "",
       roomview: (
         <div>
           <p>#default</p>
         </div>
-      )
+      ), 
+      screen: null
     };
     /** 
     var rooms = this.state.rooms.map(room => {
@@ -58,9 +61,55 @@ export class Main extends Component {
   }
 
   componentDidMount() {
-    this.renderRooms("x");
-    this.setState({ roomName: this.state.rooms[this.state.room] });
+    this.renderRooms();
+    var screen = <div style={{ height: "100%", width: "100%" }}>
+        <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
+          <NavbarBrand>
+            <img alt="logo" src={logo} height="50" />
+          </NavbarBrand>
+          <small>
+            server: <code>riddlet://{this.state.server}</code> (<a href={"riddlet://" + this.state.server}>
+              Click here to open in Desktop app
+            </a>) room: <code>{this.state.rooms[this.state.room]}</code>
+          </small>
+        </Navbar>
+        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
+          <div className="col-sm-4 col-md-2 no-gutters" style={{ height: "100%" }}>
+            {this.state.roomview}
+          </div>
+          <div className="col-sm-8 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+          </div>
+        </div>
+      </div>;
+      this.updateScreen = this.updateScreen.bind(this)
+    this.setState({ roomName: this.state.rooms[this.state.room], screen: screen });
+    window.addEventListener("resize", this.updateScreen);
     console.log("ran a render");
+  }
+
+  updateScreen() {
+    var screen = <div style={{ height: "100%", width: "100%" }}>
+        <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
+          <NavbarBrand>
+            <img alt="logo" src={logo} height="50" />
+          </NavbarBrand>
+          <small>
+            server: <code>riddlet://{this.state.server}</code> (<a href={"riddlet://" + this.state.server}>
+              Click here to open in Desktop app
+            </a>) room: <code>{this.state.rooms[this.state.room]}</code>
+          </small>
+        </Navbar>
+        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
+          <div className="col-sm-4 col-md-2 no-gutters" style={{ height: "100%" }}>
+            {this.state.roomview}
+          </div>
+          <div className="col-sm-8 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+          </div>
+        </div>
+      </div>;
+      this.setState({ screen: screen });
   }
 
   resetRooms(x) {
@@ -126,34 +175,9 @@ export class Main extends Component {
   render() {
     var x = this.props.match.params.url;
     return (
-      <div style={{ height: "100%", width: "100%"}}>
-        <Navbar dark expand="md">
-          <NavbarBrand>
-            <img alt="logo" src={logo} width="250" />
-          </NavbarBrand>
-          <small>
-            server: <code>riddlet://{x}</code> (<a href={"riddlet://"+x}>Click here to open in Desktop app</a>) room:{" "}
-            <code>{this.state.rooms[this.state.room]}</code>
-          </small>
-        </Navbar>
-        <div
-          style={{ height: "86%", width: "100%" }}
-          className="container-fluid row"
-        >
-          <div className="col-sm-4 col-md-2" style={{ height: "100%" }}>{this.state.roomview}</div>
-          <div className="col-sm-8 col-md-10" style={{ height: "100%" }}>
-            <Chat
-              rooms={this.state.rooms}
-              room={this.state.roomName}
-              url={x}
-              switchRoom={this.switchRoom}
-              joinRoom={this.joinRoom}
-              resetRooms={this.resetRooms}
-              leaveRoom={this.leaveRoom}
-            />
-          </div>
-        </div>
+      <div id="app" style={{ height: "100%", width: "100%" }}>
+      {this.state.screen}
       </div>
-    );
+    )
   }
 }

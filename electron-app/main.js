@@ -35,7 +35,7 @@ function createWindow () {
   mainWindow.webContents.openDevTools()
   mainWindow.setMenu(null);
   if (server) {
-    mainWindow.loadURL(`https://riddletchat.firebaseapp.com/chat/${server}`);
+    mainWindow.loadURL(`https://riddletchat.firebaseapp.com/chat/${server}/confirm`);
   } else {
     // and load the index.html of the app.
     mainWindow.loadURL(`https://riddletchat.firebaseapp.com`);
