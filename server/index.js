@@ -47,31 +47,7 @@ var httpsoptions = {
     });
 
     socket.on("noid", function() {
-      console.log("new user");
-      var x = makeid(15);
-      console.log("made id");
-      socket.name = x;
-      console.log("set name");
-      var colorChoice = colors[Math.floor(Math.random() * colors.length)];
-      console.log("set color");
-      token = jwt.sign({ name: socket.name, color: colorChoice }, code);
-      console.log("created token");
-      socket.emit("identification", {
-        id: x,
-        color: colorChoice,
-        token: token
-      });
-      console.log("sent identification");
-      socket.emit("messagelist", messages);
-      socket.emit("message", {
-        id: String(Date.now()),
-        client: "Server",
-        color: "red",
-        room: "#all",
-        data: "Welcome!"
-      });
-      socket.emit("version", serverInfo.version);
-      socket.join("#default");
+      require("./handlers/auth").RiddletNonIdentification(token, io, socket, sockets, messages, code, serverInfo);
     });
     socket.on("disconnect", function() {
       sockets.splice(sockets.indexOf(socket), 1);
