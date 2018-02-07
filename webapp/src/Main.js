@@ -31,18 +31,10 @@ export class Main extends Component {
       localStorage.setItem("config", json);
     }
 
-    this.state = {
-      rooms: ["#default"],
-      room: 0,
-      server: this.props.match.params.url,
-      roomName: "",
-      roomview: (
-        <div>
-          <p>#default</p>
-        </div>
-      ), 
-      screen: null
-    };
+    this.state = { rooms: ["#default"], room: 0, server: this.props.match.params.url, roomName: "", roomview: <div>
+          <h2 style={{ paddingLeft: 20 }}>Rooms</h2>
+          <p style={{ paddingLeft: 20 }}>#default</p>
+        </div>, screen: null };
     /** 
     var rooms = this.state.rooms.map(room => {
       return (
@@ -123,19 +115,15 @@ export class Main extends Component {
 
   renderRooms() {
     var rooms = this.state.rooms.map(room => {
-      return (
-        <p key={room}>
+      return <p style={{ paddingLeft: 20 }} key={room}>
           {room}
           <br />
-        </p>
-      );
+        </p>;
     });
-    const view = (
-      <div>
-        <h2>Rooms</h2>
+    const view = <div>
+        <h2 style={{ paddingLeft: 20 }}>Rooms</h2>
         {rooms}
-      </div>
-    );
+      </div>;
     this.setState({ roomview: view });
   }
 
