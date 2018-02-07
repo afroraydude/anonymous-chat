@@ -37,7 +37,7 @@ var httpsoptions = {
 
   var ip = require("ip");
 
-  var serverInfo = { version: "6", title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png" };
+  var serverInfo = { version: "7", title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png" };
 
   io.on("connection", socket => {
     console.log("connection")
