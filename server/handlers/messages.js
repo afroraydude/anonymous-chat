@@ -81,6 +81,7 @@ function NormalMessage(message) {
         .then(() => {
           if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
             message.client = decoded.name;
+            message.token = null;
             message.color = decoded.color;
             io.emit("message", message);
             messages.push(message);
@@ -109,6 +110,7 @@ function NormalMessage(message) {
       if (message.data !== " " && message.data.length > 0 && message.data.length <= serverInfo.maxcharlen) {
         message.client = decoded.name;
         message.color = decoded.color;
+        message.token = null;
         io.emit("message", message);
         messages.push(message);
       } else {

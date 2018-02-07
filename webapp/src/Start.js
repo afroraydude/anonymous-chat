@@ -3,6 +3,7 @@ import { Form, FormGroup, Input, Button } from "reactstrap";
 import openSocket from "socket.io-client";
 import logo from "./logo.png";
 import "./Start.css";
+import {DesktopConfirm} from './DesktopConfirm';
 
 const b64EncodeUnicode = function(str) {
   // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -139,15 +140,7 @@ export class Start extends Component {
         </Form>
       );
     } else {
-      x = <p>[Loading]</p>;
-      window.location.href =
-        window.location.protocol +
-        "//" +
-        window.location.hostname +
-        ":" +
-        window.location.port +
-        "/chat/" +
-        b64EncodeUnicode(this.state.url);
+      x = <DesktopConfirm url={b64EncodeUnicode(this.state.url)}/>;
     }
     return (
       <div
