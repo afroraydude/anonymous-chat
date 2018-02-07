@@ -7,11 +7,13 @@ import "./Chat.css";
 import {
   Table,
   Input,
+  InputGroupAddon,
   Button,
   Form,
   FormGroup,
   Navbar,
-  NavbarBrand
+  NavbarBrand,
+  InputGroup
 } from "reactstrap";
 
 const b64DecodeUnicode = function(str) {
@@ -378,24 +380,9 @@ export class Chat extends Component {
         </div>
       );
     } else if (this.state.screen === "messages") {
-      screen = (
-        <div
-          style={{
-            width: "100%",
-            height: "inherit"
-          }}
-        >
+      screen = <div style={{ width: "100%", height: "inherit" }}>
           {this.state.messageView}
-          <div
-            className="footform"
-            style={{
-              width: "100%",
-              display: "block",
-              position: "absolute",
-              bottom: 0,
-              height: 45
-            }}
-          >
+          <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 45 }}>
             <Form
               autoComplete="off"
               onSubmit={this.sendMessage}
@@ -426,8 +413,7 @@ export class Chat extends Component {
               </FormGroup>
             </Form>
           </div>
-        </div>
-      );
+        </div>;
     }
     return <div style={{ height: "100%" }}>{screen}</div>;
   }

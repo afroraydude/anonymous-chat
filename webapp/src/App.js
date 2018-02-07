@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Route, Switch,Redirect} from 'react-router';
 import {Main} from './Main';
 import {Start} from './Start';
+import {DesktopConfirm} from './DesktopConfirm'
 
 class App extends Component {
   constructor(props) {
@@ -23,7 +24,8 @@ class App extends Component {
   render() {
     return (
       <Switch>
-        <Route path="/chat/:url" component={Main}/>
+        <Route path="/chat/:url" exact={true} component={Main}/>
+        <Route path="/chat/:url/confirm" component={DesktopConfirm}/>
         {
           // TODO: Server owner login
         }

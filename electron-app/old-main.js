@@ -35,10 +35,10 @@ function createWindow () {
   mainWindow.webContents.openDevTools()
   mainWindow.setMenu(null);
   if (server) {
-    mainWindow.loadURL(`https://riddletchat.firebaseapp.com/chat/${server}`);
+    mainWindow.loadURL(`file://${__dirname}/index.html?server=${server}`)
   } else {
     // and load the index.html of the app.
-    mainWindow.loadURL(`https://riddletchat.firebaseapp.com`);
+    mainWindow.loadURL(`file://${__dirname}/index.html`)
   }
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
