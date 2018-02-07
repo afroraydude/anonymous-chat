@@ -60,9 +60,7 @@ export class Main extends Component {
             <img alt="logo" src={logo} height="50" />
           </NavbarBrand>
           <small>
-            server: <code>riddlet://{this.state.server}</code> (<a href={"riddlet://" + this.state.server}>
-              Click here to open in Desktop app
-            </a>) room: <code>{this.state.rooms[this.state.room]}</code>
+            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.rooms[this.state.room]}</code>
           </small>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
@@ -87,9 +85,7 @@ export class Main extends Component {
             <img alt="logo" src={logo} height="50" />
           </NavbarBrand>
           <small>
-            server: <code>riddlet://{this.state.server}</code> (<a href={"riddlet://" + this.state.server}>
-              Click here to open in Desktop app
-            </a>) room: <code>{this.state.rooms[this.state.room]}</code>
+            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.rooms[this.state.room]}</code>
           </small>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">

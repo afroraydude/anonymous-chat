@@ -263,7 +263,7 @@ export class Chat extends Component {
       return (<Message message={message} room={this.props.room} />)
     });
 
-    var view = <div id="data" style={{overflowY: "scroll", height: window.innerHeight - 100 }}>{messages}</div>
+    var view = <div id="data" style={{overflowY: "auto", height: window.innerHeight - 100 }}>{messages}</div>
     this.setState({
       screen: "messages",
       messageView: view,
@@ -330,7 +330,7 @@ export class Chat extends Component {
     console.log("r")
     return <div style={{ height: "100%" }}>
     {this.state.screenshow}
-    <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50 }}>
+    <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50, borderTop: "1px solid rgb(238, 238, 238)" }}>
             <Form
               autoComplete="off"
               onSubmit={this.sendMessage}

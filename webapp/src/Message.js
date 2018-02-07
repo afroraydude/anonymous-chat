@@ -50,12 +50,13 @@ export class Message extends Component {
             </span>: <span>{message.data}</span>
           </div>;
       }
+      return (
+        <div style={{padding: 10, borderBottom: "1px solid #eeeeee"}}>{output}</div>
+      )
     } else {
       console.log("Message " + message.id + " is from a different channel");
+      return null
     }
-    return (
-      <div style={{padding: 10, borderBottom: "1px solid #eeeeee"}}>{output}</div>
-    )
   }
 
 }
