@@ -1,12 +1,6 @@
-var Riddlet = function(io) {
+var Riddlet = function(app) {
   http = require("http");
-  //fs = require('fs');
-  /*
-var httpsoptions = {
-  key: fs.readFileSync(process.env.key),
-  cert: fs.readFileSync(process.env.cert)
-};
-*/
+
   require("dotenv").config();
   
   io = require("socket.io")(app);
@@ -22,15 +16,7 @@ var httpsoptions = {
 
   var messageLimiter = new FastRateLimit({ threshold: 5, ttl: 5 }); // available tokens over timespan // time-to-live value of token bucket (in seconds)
 
-  function makeid(chars) {
-    var len = chars || 15;
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < len; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
+  var makeid = require('./handlers/util').randtext
 
   var code = process.env.jwtcode || makeid(25);
   console.log(code);

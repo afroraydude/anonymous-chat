@@ -22,17 +22,6 @@ var messageLimiter = new FastRateLimit({
   ttl: 5 // time-to-live value of token bucket (in seconds)
 });
 
-function makeid(chars) {
-  var len = chars || 15;
-  var text = "";
-  var possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < len; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
 function RiddletMessage(rio, rsocket, message, sockets, messages, rcode, rserverInfo) {
   io = rio;
   socket = rsocket;
@@ -141,7 +130,7 @@ function JoinMessage(message) {
       client: "Server",
       color: "red",
       room: "#all",
-      data: `You have joined the ${room} room, type '/switch ${room}' to switch to that room`
+      data: `You have joined the ${room} room, type '/switch {#RoomName}' to switch to another room`
     });
   } else {
     socket.emit("message", {

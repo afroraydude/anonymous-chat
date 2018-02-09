@@ -79,6 +79,7 @@ export class Main extends Component {
   }
 
   updateScreen() {
+    console.log("main screen update")
     var screen = <div style={{ height: "100%", width: "100%" }}>
         <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
           <NavbarBrand>
@@ -111,7 +112,7 @@ export class Main extends Component {
 
   renderRooms() {
     var rooms = this.state.rooms.map(room => {
-      return <p style={{ paddingLeft: 20 }} key={room}>
+        return <p style={{ paddingLeft: 20, color: "red" }} key={room}>
           {room}
           <br />
         </p>;
@@ -120,13 +121,15 @@ export class Main extends Component {
         <h2 style={{ paddingLeft: 20 }}>Rooms</h2>
         {rooms}
       </div>;
-    this.setState({ roomview: view });
+    this.setState({ roomview: view })
+    this.updateScreen();
   }
 
   switchRoom(room) {
       const x = this.state.rooms.indexOf(room);
       this.setState({ room: x, roomName: this.state.rooms[x] });
       document.title = "Riddlet - " + room;
+      this.renderRooms()
   }
 
   joinRoom(room) {
@@ -135,7 +138,7 @@ export class Main extends Component {
         var x = this.state.rooms;
         x.push(room);
         this.setState({ rooms: x });
-        this.renderRooms();
+        this.switchRoom(room)
       }
     }
   }
