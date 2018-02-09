@@ -23,7 +23,7 @@ var Riddlet = function(app) {
 
   var ip = require("ip");
 
-  var serverInfo = { version: "7", title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png", users: 0 };
+  var serverInfo = { version: 8, title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png", users: 0 };
 
   io.on("connection", socket => {
     console.log("connection")

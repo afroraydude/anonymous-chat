@@ -112,7 +112,7 @@ export class Main extends Component {
 
   renderRooms() {
     var rooms = this.state.rooms.map(room => {
-        return <p style={{ paddingLeft: 20, color: "red" }} key={room}>
+        return <p style={{ paddingLeft: 20 }} key={room}>
           {room}
           <br />
         </p>;
