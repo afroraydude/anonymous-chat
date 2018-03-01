@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, FormGroup, Input, Button } from "reactstrap";
+import { Form, FormGroup, Input, Button, Modal, ModalBody, ModalFooter } from "reactstrap";
 import openSocket from "socket.io-client";
 import logo from "./logo.png";
 import "./Start.css";
@@ -38,10 +38,12 @@ export class Start extends Component {
       url: "",
       isServer: null,
       serverData: {},
-      hasCheckedBefore: false
+      hasCheckedBefore: false,
+      modal: false
     };
     this.changeUrl = this.changeUrl.bind(this);
     this.checkForServer = this.checkForServer.bind(this);
+    this.connector = this.connector.bind(this)
   }
 
   changeUrl(event) {
@@ -49,48 +51,44 @@ export class Start extends Component {
     this.setState({ url: event.target.value });
   }
 
+  connector(uri) {
+    const socket = openSocket(uri);
+    socket.on("connect_error", error => {
+      this.setState({ isServer: false });
+    });
+    socket.on(
+        "serverinfo",
+        function(info) {
+          console.log(info);
+          this.setState({ isServer: true, serverData: info, url: uri });
+        }.bind(this)
+    );
+  }
+
   checkForServer(event) {
     event.preventDefault();
     if (this.state.url.startsWith("riddlet://")) {
       var encode = this.state.url.split("riddlet://")[1];
       var decode = b64DecodeUnicode(encode);
-      const socket = openSocket(decode);
-      socket.on("connect_error", error => {
-        this.setState({ isServer: false });
-      });
-      socket.on(
-        "serverinfo",
-        function(info) {
-          console.log(info);
-          this.setState({ isServer: true, serverData: info, url: decode });
-        }.bind(this)
-      );
+      if (!decode.startsWith("https")) {
+        this.connector(this.state.url)
+      } else {
+        this.connector(decode)
+      }
     } else if (this.state.url.startsWith("ironchat://")) {
       var encode = this.state.url.split("ironchat://")[1];
       var decode = b64DecodeUnicode(encode);
-      const socket = openSocket(decode);
-      socket.on("connect_error", error => {
-        this.setState({ isServer: false });
-      });
-      socket.on(
-        "serverinfo",
-        function(info) {
-          console.log(info);
-          this.setState({ isServer: true, serverData: info, url: decode });
-        }.bind(this)
-      );
+      if (!decode.startsWith("https")) {
+        this.connector(this.state.url)
+      } else {
+        this.connector(decode)
+      }
     } else {
-      const socket = openSocket(this.state.url);
-      socket.on("connect_error", error => {
-        this.setState({ isServer: false });
-      });
-      socket.on(
-        "serverinfo",
-        function(info) {
-          console.log(info);
-          this.setState({ isServer: true, serverData: info });
-        }.bind(this)
-      );
+      if(!this.state.url.startsWith("https")) {
+        this.connector(this.state.url)
+      } else {
+        this.connector(this.state.url)
+      }
     }
   }
 
@@ -155,6 +153,18 @@ export class Start extends Component {
         />
         {x}
         <small className="center">{"v"+localStorage.getItem("version")+"-pre-alpha"}</small>
+        <Modal isOpen={this.state.modal}>
+          <ModalBody>
+            <div class="center">
+              <p>Warning: You are using an insecure server. Please press b</p>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.join}>
+              Join Server
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }
