@@ -1,28 +1,17 @@
 
 exports.RiddletMessage = RiddletMessage
 
-var Realm = require("realm");
 var FastRateLimit = require("fast-ratelimit").FastRateLimit;
 var jwt = require("jsonwebtoken");
 var io, socket, code, serverInfo;
 require("dotenv").config();
-
-const MessageSchema = {
-  name: "Message",
-  properties: {
-    client: "string",
-    color: "string",
-    room: "string",
-    data: "string"
-  }
-};
 
 var messageLimiter = new FastRateLimit({
   threshold: 5, // available tokens over timespan
   ttl: 5 // time-to-live value of token bucket (in seconds)
 });
 
-function RiddletMessage(rio, rsocket, message, sockets, messages, rcode, rserverInfo) {
+function RiddletMessage(rio, rsocket, message, sockets, messages, rcode, rserverInfo, user) {
   io = rio;
   socket = rsocket;
   code = rcode;
@@ -37,6 +26,9 @@ function RiddletMessage(rio, rsocket, message, sockets, messages, rcode, rserver
       var xx = crypto.createDecipher(algorithm,socket.crypto);
       var yy = xx.update(message.data, 'hex', 'utf8');
       message.data = yy;
+   io.emit("message", message);
+   messages.push(message);
+   } else {
     */
 
   if (message.data.startsWith("/join")) {
@@ -47,22 +39,12 @@ function RiddletMessage(rio, rsocket, message, sockets, messages, rcode, rserver
     LeaveMessage(message);
   } else {
     console.log("handled normal message");
-    NormalMessage(message);
+    NormalMessage(message, user);
   }
 }
 
-function NormalMessage(message) {
-  var decoded;
-  try {
-    decoded = jwt.verify(message.token, code);
+function NormalMessage(message, decoded) {
     console.log("MessageHandler was able to decode message");
-    let realm = new Realm({ schema: [MessageSchema] });
-    realm.write(() => {
-      let x = realm.create("Message", { client: decoded.name || crypto
-            .createHash("md4")
-            .update(socket.id)
-            .digest("hex"), color: decoded.color || "black", room: message.room || "#default", data: message.data || "" });
-    });
     var namespace = decoded.name;
     if (process.env.ratelimit === "true") {
       messageLimiter
@@ -72,9 +54,6 @@ function NormalMessage(message) {
             message.client = decoded.name;
             message.token = null;
             message.color = decoded.color;
-            io.emit("message", message);
-            messages.push(message);
-          } else {
             socket.emit("message", {
               id: String(Date.now()),
               client: "Server",
@@ -114,10 +93,6 @@ function NormalMessage(message) {
       }
     }
     console.log("processed a message");
-    //socket.emit("message", {id: String(Date.now()), client: "Server", color: "red", room: "#all", data: "Message not sent, you are being ratelimited"})
-  } catch (err) {
-    require('./auth').RiddletReIdentify(io, socket, sockets, messages, code, serverInfo)
-  }
 }
 
 function JoinMessage(message) {

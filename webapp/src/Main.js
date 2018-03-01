@@ -75,18 +75,16 @@ export class Main extends Component {
       this.updateScreen = this.updateScreen.bind(this)
     this.setState({ roomName: this.state.rooms[this.state.room], screen: screen });
     window.addEventListener("resize", this.updateScreen);
-    console.log("ran a render");
   }
 
   updateScreen() {
-    console.log("main screen update")
     var screen = <div style={{ height: "100%", width: "100%" }}>
         <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
           <NavbarBrand>
             <img alt="logo" src={logo} height="50" />
           </NavbarBrand>
           <small>
-            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.rooms[this.state.room]}</code>
+            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.roomName}</code>
           </small>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
@@ -127,9 +125,13 @@ export class Main extends Component {
 
   switchRoom(room) {
       const x = this.state.rooms.indexOf(room);
-      this.setState({ room: x, roomName: this.state.rooms[x] });
-      document.title = "Riddlet - " + room;
-      this.renderRooms()
+      this.setState({ roomName: room });
+      setTimeout(function(){
+        document.title = "Riddlet - " + this.state.roomName;
+        setTimeout(function() {
+          this.updateScreen()
+        }.bind(this), 250)
+      }.bind(this), 250)
   }
 
   joinRoom(room) {
@@ -140,21 +142,18 @@ export class Main extends Component {
         this.setState({ rooms: x });
         this.switchRoom(room)
       }
+      this.renderRooms()
     }
   }
 
   leaveRoom(room) {
-    console.log("a done")
     if (room) {
-      console.log("b done")
       if (this.state.rooms.indexOf(room) > -1) {
-        console.log("c done")
         var x = this.state.rooms;
         x.splice(x.indexOf(room), 1);
         this.setState({rooms: x, room: 0, roomName: x[0]});
         setTimeout(this.renderRooms, 100);
       } else {
-        console.log("d done")
       }
     }
   }

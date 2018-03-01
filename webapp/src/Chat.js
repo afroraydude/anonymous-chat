@@ -38,9 +38,7 @@ function getRandomInt(min, max) {
 export class Chat extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props.url);
     const url = this.props.url;
-    console.log(b64DecodeUnicode(url));
     const socket = openSocket(b64DecodeUnicode(url), {secure: true});
 
     this.state = {
@@ -107,13 +105,11 @@ export class Chat extends Component {
       }.bind(this)
     );
     socket.on("identification", function(identification) {
-        console.log(identification);
         var config = JSON.parse(localStorage.getItem("config"));
         var servers = config.servers;
         var server = {id: url, token: identification.token}
         try {
           var originalserver = servers.filter(function(server) {
-            console.log(window.location.pathname.split("/")[window.location.pathname.split("/").length -1])
             return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length -1];
           }.bind(this))[0];
           servers.splice(servers.indexOf(originalserver), 1);
@@ -123,7 +119,6 @@ export class Chat extends Component {
         servers.push(server);
         config = {servers: servers};
         config = JSON.stringify(config)
-        console.log(config)
         localStorage.setItem("config", config);
         this.setState({
           id: identification.id,
@@ -136,7 +131,6 @@ export class Chat extends Component {
     socket.on(
       "messagelist",
       function(data) {
-        console.log(data);
         this.setState({ messages: data, status: "connected" });
       }.bind(this)
     );
@@ -169,21 +163,18 @@ export class Chat extends Component {
         var data = this.state.messages;
         data.push(message);
         this.setState({ messages: data });
-        console.log(message);
         this.updateMessages();
       }.bind(this)
     );
     socket.on(
       "join",
       function(room) {
-        console.log(room);
         this.props.joinRoom(room);
       }.bind(this)
     );
     socket.on("leave", function(room) {
       console.log(room);
       if (this.props.rooms.length === 1) {
-        console.log("WOAH THERE IS ONLY ONE ROOM");
         var messages = this.state.messages;
         var newMessage = {
           id: String(Date.now() + "" + getRandomInt(10000, 99999)),
@@ -199,7 +190,6 @@ export class Chat extends Component {
         var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: `/join ${room}` };
         socket.emit("message", data)
       } else {
-        console.log("deleting room from list")
         this.props.leaveRoom(room);
       }
     }.bind(this))
@@ -249,7 +239,6 @@ export class Chat extends Component {
 
   
   updateScreen() {
-    console.log("us")
     var screen = (
       <div style={{ width: "100%", height: "inherit" }}>
           {this.state.messageView}
@@ -258,7 +247,6 @@ export class Chat extends Component {
   }
 
   updateMessages() {
-    console.log("um")
     var messages = this.state.messages.map(message => {
       return (<Message message={message} room={this.props.room} />)
     });
@@ -276,7 +264,6 @@ export class Chat extends Component {
 
     }
     setTimeout(this.updateScreen(), 100)
-    console.log("Updated message display panel")
   }
 
   sendMessage(event) {
@@ -297,7 +284,6 @@ export class Chat extends Component {
     var room = x.split(" ")[1];
     if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
       var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: this.state.input };
-      console.log("did send message");
       socket.emit("message", data);
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;
@@ -327,7 +313,8 @@ export class Chat extends Component {
   }
 
   render() {
-    console.log("r")
+    //this.updateMessages();
+    //this.updateScreen();
     return <div style={{ height: "100%" }}>
     {this.state.screenshow}
     <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50, borderTop: "1px solid rgb(238, 238, 238)" }}>

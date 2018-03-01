@@ -2,23 +2,7 @@ var Realm = require("realm");
 var FastRateLimit = require("fast-ratelimit").FastRateLimit;
 var jwt = require("jsonwebtoken");
 
-const colors = [
-  "blue",
-  "beige",
-  "green",
-  "olive",
-  "purple",
-  "black",
-  "brown",
-  "cadetblue",
-  "coral",
-  "darkgray",
-  "gray",
-  "DarkKhaki",
-  "DarkSlateBlue",
-  "SlateBlue",
-  "Tomato"
-];
+colors = ["black", "blue", "green", "orange", "sienna", "coral", "purple", "gold", "royalblue", "silver", "olive", "orchid"];
 
 var makeid = require('./util').randtext
 
