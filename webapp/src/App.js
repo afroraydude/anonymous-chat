@@ -7,7 +7,7 @@ import {DesktopConfirm} from './DesktopConfirm'
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 9);
+    localStorage.setItem("version", 10);
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
     }

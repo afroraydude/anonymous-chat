@@ -27,7 +27,7 @@ var Riddlet = function(app, adapters) {
 
   var ip = require("ip")
 
-  var serverInfo = { version: 9, title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png", users: 0, isMod: adapters ? true : false };
+  var serverInfo = { version: 10, title: "Test Server", rooms: ["/"], maxcharlen: parseInt(process.env.maxcharlen) || 500,  ip: ip.address(), logo: process.env.logourl || "https://d30y9cdsu7xlg0.cloudfront.net/png/29558-200.png", users: 0, isMod: adapters ? true : false };
 
   // check if using custom adapters
   if (serverInfo.isMod === true) {

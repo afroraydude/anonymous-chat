@@ -59,25 +59,19 @@ export class Chat extends Component {
     this.sendMessage = this.sendMessage.bind(this);
     this.handleTextTyping = this.handleTextTyping.bind(this);
 
-    var config = JSON.parse(localStorage.getItem("config"));
-    var servers = config.servers;
-    var server = servers.filter(function(server) {
-        return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length - 1];
-      }.bind(this))[0];
-    if (server) {
-      socket.emit("identification", server.token);
+    var server = this.props.url
+    var serverconf = localStorage.getItem(server)
+    if (serverconf) {
+      socket.emit("identification", serverconf);
     } else {
       socket.emit("noid");
     }
 
     socket.on("reconnect", function() {
-      var config = JSON.parse(localStorage.getItem("config"));
-      var servers = config.servers;
-      var server = servers.filter(function(server) {
-          return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length - 1];
-        }.bind(this))[0];
-      if (server) {
-        socket.emit("identification", server.token);
+      var server = this.props.url;
+      var serverconf = localStorage.getItem(server);
+      if (serverconf) {
+        socket.emit("identification", serverconf);
       } else {
         socket.emit("noid");
       }
@@ -105,6 +99,7 @@ export class Chat extends Component {
       }.bind(this)
     );
     socket.on("identification", function(identification) {
+      /*
         var config = JSON.parse(localStorage.getItem("config"));
         var servers = config.servers;
         var server = {id: url, token: identification.token}
@@ -113,6 +108,7 @@ export class Chat extends Component {
             return server.id === window.location.pathname.split("/")[window.location.pathname.split("/").length -1];
           }.bind(this))[0];
           servers.splice(servers.indexOf(originalserver), 1);
+          console.log("removed original server")
         } catch(err) {
 
         }
@@ -120,6 +116,9 @@ export class Chat extends Component {
         config = {servers: servers};
         config = JSON.stringify(config)
         localStorage.setItem("config", config);
+        */
+       var server = this.props.url;
+       localStorage.setItem(this.props.url, identification.token);
         this.setState({
           id: identification.id,
           color: identification.color,
@@ -187,7 +186,7 @@ export class Chat extends Component {
         this.setState({
           messages: messages
         });
-        var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: `/join ${room}` };
+        var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: this.state.token, room: this.props.room, data: `/join ${room}` };
         socket.emit("message", data)
       } else {
         this.props.leaveRoom(room);
@@ -283,7 +282,7 @@ export class Chat extends Component {
     var x = this.state.input;
     var room = x.split(" ")[1];
     if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
-      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: server.token, room: this.props.room, data: this.state.input };
+      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: this.state.token, room: this.props.room, data: this.state.input };
       socket.emit("message", data);
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;

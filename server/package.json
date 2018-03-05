@@ -16,6 +16,8 @@
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "install": "^0.10.4",
+    "ip": "^1.1.5",
+    "jsonwebtoken": "^8.2.0",
     "realm": "^2.2.6",
     "socket.io": "^2.0.4",
     "utf8": "^3.0.0"
