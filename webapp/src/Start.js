@@ -71,7 +71,7 @@ export class Start extends Component {
       var encode = this.state.url.split("riddlet://")[1];
       var decode = b64DecodeUnicode(encode);
       if (!decode.startsWith("https")) {
-        this.connector(this.state.url)
+        this.connector(decode)
       } else {
         this.connector(decode)
       }
@@ -79,7 +79,7 @@ export class Start extends Component {
       var encode = this.state.url.split("ironchat://")[1];
       var decode = b64DecodeUnicode(encode);
       if (!decode.startsWith("https")) {
-        this.connector(this.state.url)
+        this.connector(decode)
       } else {
         this.connector(decode)
       }
@@ -152,7 +152,7 @@ export class Start extends Component {
           style={{ marginBottom: 50 }}
         />
         {x}
-        <small className="center">{"v"+localStorage.getItem("version")+"-pre-alpha"}</small>
+        <small className="center">{"v"+localStorage.getItem("version")+"-alpha"}</small>
         <Modal isOpen={this.state.modal}>
           <ModalBody>
             <div class="center">

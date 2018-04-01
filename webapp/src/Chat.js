@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import openSocket from "socket.io-client";
-import { createCipher, createHash } from "crypto-browserify";
+import { createCipher, createHash, privateEncrypt, publicDecrypt } from "crypto-browserify";
 import "./Chat.css";
 import {
   Table,
@@ -16,6 +16,7 @@ import {
   InputGroup
 } from "reactstrap";
 import { Message } from "./Message";
+import {Buffer} from 'buffer';
 
 const b64DecodeUnicode = function(str) {
   // Going backwards: from bytestream, to percent-encoding, to original string.
@@ -28,6 +29,23 @@ const b64DecodeUnicode = function(str) {
       .join("")
   );
 };
+
+const encryptMessage = function(message, key) {
+  const buffer = new Buffer(message.data);
+  var encrypted = privateEncrypt(key, buffer)
+  return encrypted.toString("base64");
+}
+
+const decryptMessage = function(message, key) {
+  try {
+    key = key ? key : localStorage.getItem("pubkey")
+    const buffer = new Buffer(message.data, "base64");
+    var decrypted = publicDecrypt(key, buffer);
+    return decrypted.toString("utf8")
+  } catch (err) {
+    return "decryption err"
+  }
+}
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -53,7 +71,8 @@ export class Chat extends Component {
       iosocket: socket,
       messages: [],
       messageView: null,
-      key: Math.random()
+      key: Math.random(),
+      servkey: ''
     };
     this.updateMessages = this.updateMessages.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -76,6 +95,10 @@ export class Chat extends Component {
         socket.emit("noid");
       }
     });
+
+    socket.on("serverinfo", function(info) {
+      this.setState({serverinfo: info})
+    }.bind(this))
 
     socket.on(
       "version",
@@ -126,7 +149,14 @@ export class Chat extends Component {
           status: "getting messages"
         });
         this.props.resetRooms("x");
+
+        this.state.iosocket.emit("clientkey", localStorage.getItem("pubkey"));
       }.bind(this));
+    socket.on("servkey", function(key) {
+      this.setState({
+        servkey: key
+      });
+    }.bind(this))
     socket.on(
       "messagelist",
       function(data) {
@@ -159,6 +189,7 @@ export class Chat extends Component {
       "message",
       function(message) {
         // TODO: decrypt all messages (see server.js TODO)
+        if (this.state.serverinfo.encrypt === "true") message.data = decryptMessage(message, this.state.servkey);
         var data = this.state.messages;
         data.push(message);
         this.setState({ messages: data });
@@ -236,7 +267,7 @@ export class Chat extends Component {
     window.addEventListener("resize", this.updateScreen);
   }
 
-  
+
   updateScreen() {
     var screen = (
       <div style={{ width: "100%", height: "inherit" }}>
@@ -268,7 +299,6 @@ export class Chat extends Component {
   sendMessage(event) {
     event.preventDefault();
     var socket = this.state.iosocket;
-
     /** TODO: Send messages encrypted
       var algorithm = 'aes-256-ctr';
       var x = createCipher(algorithm, this.state.crypto);
@@ -282,7 +312,15 @@ export class Chat extends Component {
     var x = this.state.input;
     var room = x.split(" ")[1];
     if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
-      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), token: this.state.token, room: this.props.room, data: this.state.input };
+      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
+      if (this.state.serverinfo.version < 11) {
+        console.log("lower version")
+        data.token = this.state.token
+      }
+      if (this.state.serverinfo.encrypt === "true") {
+        console.log("sending encrypted message")
+        data.data = encryptMessage(data, localStorage.getItem("privkey"));
+      }
       socket.emit("message", data);
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;

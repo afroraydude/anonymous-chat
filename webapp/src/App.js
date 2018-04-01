@@ -2,12 +2,27 @@ import React, { Component } from 'react';
 import {Route, Switch,Redirect} from 'react-router';
 import {Main} from './Main';
 import {Start} from './Start';
-import {DesktopConfirm} from './DesktopConfirm'
+import {DesktopConfirm} from './DesktopConfirm';
+import {createSign, getHashes} from 'crypto-browserify';
+
+var keypair = require('keypair')
+
+var genkeys = function() {
+  var pair = keypair();
+  return pair || {public: "fail", private: "fail"}
+}
 
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 10);
+    localStorage.setItem("version", 11);
+
+    if (!localStorage.getItem("pubkey") || !localStorage.getItem("privkey")) {
+      var keypair = genkeys();
+      localStorage.setItem('pubkey', keypair.public)
+      localStorage.setItem('privkey', keypair.private)
+    }
+
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
     }
