@@ -311,7 +311,10 @@ export class Chat extends Component {
     }.bind(this))[0];
     var x = this.state.input;
     var room = x.split(" ")[1];
-    if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
+    if (this.state.input === "/reset") {
+      socket.emit("noid");
+    }
+    else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
       var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
       if (this.state.serverinfo.version < 11) {
         console.log("lower version")
