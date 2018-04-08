@@ -41,9 +41,7 @@ class App extends Component {
       <Switch>
         <Route path="/chat/:url" exact={true} component={Main}/>
         <Route path="/chat/:url/confirm" component={DesktopConfirm}/>
-        {
-          // TODO: Server owner login
-        }
+        {// TODO: Server owner login}
         <Redirect path="/chat" to="/"/>
         <Route component={Start}/>
       </Switch>
