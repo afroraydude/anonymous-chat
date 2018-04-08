@@ -16,7 +16,15 @@ import {
   InputGroup
 } from "reactstrap";
 import { Message } from "./Message";
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
+import { setTimeout } from "timers";
+
+var keypair = require('keypair')
+
+var genkeys = function () {
+    var pair = keypair();
+    return pair || { public: "fail", private: "fail" }
+}
 
 const b64DecodeUnicode = function(str) {
   // Going backwards: from bytestream, to percent-encoding, to original string.
@@ -57,7 +65,7 @@ export class Chat extends Component {
   constructor(props) {
     super(props);
     const url = this.props.url;
-    const socket = openSocket(b64DecodeUnicode(url), {secure: true});
+      const socket = openSocket(b64DecodeUnicode(url), { secure: true });
 
     this.state = {
       url: b64DecodeUnicode(url),
@@ -312,7 +320,32 @@ export class Chat extends Component {
     var x = this.state.input;
     var room = x.split(" ")[1];
     if (this.state.input === "/reset") {
-      socket.emit("noid");
+        socket.emit("noid");
+        var messages = this.state.messages;
+        var newMessage = {
+            id: String(Date.now() + "" + getRandomInt(10000, 99999)),
+            client: "Client",
+            color: "red",
+            room: "#all",
+            data: "Reset user data."
+        };
+        messages.push(newMessage);
+        this.setState({ messages: messages });
+    } else if (this.state.input === '/newkeys') {
+        var messages = this.state.messages;
+        var newMessage = {
+            id: String(Date.now() + "" + getRandomInt(10000, 99999)),
+            client: "Client",
+            color: "red",
+            room: "#all",
+            data: "Created new keys"
+        };
+        messages.push(newMessage);
+        this.setState({ messages: messages });
+        var keypair = genkeys();
+        localStorage.setItem('pubkey', keypair.public)
+        localStorage.setItem('privkey', keypair.private)
+        socket.emit("clientkey", localStorage.getItem("pubkey"));
     }
     else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
       var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };

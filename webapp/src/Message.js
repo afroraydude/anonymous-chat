@@ -1,57 +1,57 @@
 import React, {Component} from 'react'
+import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2 } from 'react-html-parser';
+import { getMetadata } from 'page-metadata-parser';
+import {
+    Card, CardImg, CardText, CardBody,
+    CardTitle, CardSubtitle, Button
+} from 'reactstrap';
 
 export class Message extends Component {
   constructor(props) {
-    super(props)
-  }
+      super(props)
+      this.state = { card: null }
+      this.urlify = this.urlify.bind(this)
+    }
+
+    urlify(text) {
+        var urlRegex = /(https?:\/\/[^\s]+)/g
+        return text.replace(urlRegex, function (url) {
+            /**
+            console.log(url)
+            const ogs = require('open-graph-scraper');
+            const testurl = "https://crossorigin.me/" + url
+            const options = { 'url': testurl };
+            ogs(options, function (error, results) {
+                this.setState({ card: results })
+            }.bind(this));
+            console.log(this.state.card)
+            const x = '<Card><CardBody><CardTitle>'+""+'</CardTitle></CardBody></Card>'
+            */
+            var x = ''
+            return '<a href="' + url + '">' + url + '</a><br/>'+x;
+        }.bind(this))
+        // or alternatively
+        // return text.replace(urlRegex, '<a href="$1">$1</a>')
+    }
+
+    test(text) {
+        var x = this.urlify(text);
+        return ReactHtmlParser(x)
+    }
   render() {
     var message = this.props.message;
     var output;
-    if (message.room === this.props.room || message.room === "#all") {
-      if (message.data.includes("riddlet://")) {
-        var x = message.data.split("riddlet://")[0];
-        var y = message.data.split("riddlet://")[1];
-        console.log(message.color)
-        var z = y.split(" ")[1];
-        y = y.split(" ")[0];
-        output = (<div key={message.id} style={{ fontSize: 12 }}>
+      if (message.room === this.props.room || message.room === "#all") {
+          const abc = this.test(message.data)
+      output = <div key={message.id} style={{ fontSize: 12 }}>
             <span style={{ color: message.color }}>
               Anonymous <small>
                 <code>[{message.client}]</code>
               </small>
-            </span>: <span>{x}</span>
-            <a href={"riddlet://" + y}>
-              Click to open server invite link in the Riddlet desktop
-              application
-            </a> <span>{z}</span>
-          </div>);
-      } else if (message.data.includes("ironchat://")) {
-        var x = message.data.split("ironchat://")[0];
-        var y = message.data.split("ironchat://")[1];
-        var z = y.split(" ")[1];
-        y = y.split(" ")[0];
-        output = <div key={message.id} style={{ fontSize: 12 }}>
-            <span style={{ color: message.color }}>
-              Anonymous <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{x}</span>
-            <a href={"ironchat://" + y}>
-              Click to open server invite link in the Riddlet desktop
-              application
-            </a> <span>{z}</span>
+            </span>: <span>{abc}</span>
           </div>;
-      } else {
-        output = <div key={message.id} style={{ fontSize: 12 }}>
-            <span style={{ color: message.color }}>
-              Anonymous <small>
-                <code>[{message.client}]</code>
-              </small>
-            </span>: <span>{message.data}</span>
-          </div>;
-      }
-      return (
-        <div style={{padding: 10, borderBottom: "1px solid #eeeeee"}}>{output}</div>
+          return (
+              <div style={{ padding: 10, borderBottom: "1px solid #eeeeee" }}>{output}</div>
       )
     } else {
       console.log("Message " + message.id + " is from a different channel");

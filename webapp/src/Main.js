@@ -55,23 +55,20 @@ export class Main extends Component {
   componentDidMount() {
     this.renderRooms();
     var screen = <div style={{ height: "100%", width: "100%" }}>
-        <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
-          <NavbarBrand>
-            <img alt="logo" src={logo} height="50" />
-          </NavbarBrand>
-          <small>
-            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.rooms[this.state.room]}</code>
-          </small>
+        <Navbar expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
+            <NavbarBrand>
+                <img alt="logo" src={logo} height="50" />
+            </NavbarBrand>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
-          <div className="col-sm-4 col-md-2 no-gutters" style={{ height: "100%" }}>
-            {this.state.roomview}
-          </div>
-          <div className="col-sm-8 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
-            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
-          </div>
+            <div className="col-sm-2 d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
+                {this.state.roomview}
+            </div>
+            <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+                <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+            </div>
         </div>
-      </div>;
+    </div>;
       this.updateScreen = this.updateScreen.bind(this)
     this.setState({ roomName: this.state.rooms[this.state.room], screen: screen });
     window.addEventListener("resize", this.updateScreen);
@@ -79,19 +76,16 @@ export class Main extends Component {
 
   updateScreen() {
     var screen = <div style={{ height: "100%", width: "100%" }}>
-        <Navbar dark expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
+        <Navbar expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
           <NavbarBrand>
             <img alt="logo" src={logo} height="50" />
           </NavbarBrand>
-          <small>
-            server: <code>riddlet://{this.state.server}</code> room: <code>{this.state.roomName}</code>
-          </small>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
-          <div className="col-sm-4 col-md-2 no-gutters" style={{ height: "100%" }}>
+            <div className="col-sm-2 d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
             {this.state.roomview}
           </div>
-          <div className="col-sm-8 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+            <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
             <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
           </div>
         </div>
@@ -109,14 +103,22 @@ export class Main extends Component {
   }
 
   renderRooms() {
-    var rooms = this.state.rooms.map(room => {
-        return <p style={{ paddingLeft: 20 }} key={room}>
-          {room}
-          <br />
-        </p>;
+      var rooms = this.state.rooms.map(room => {
+          if (room === this.state.roomName) {
+              console.log(room)
+              return <small style={{ paddingLeft: 20 }} key={room}>
+                  <b>{room}</b>
+                  <br />
+              </small>
+          } else {
+              return <small style={{ paddingLeft: 20 }} key={room}>
+                  {room}
+                  <br />
+              </small>
+          }
     });
     const view = <div>
-        <h2 style={{ paddingLeft: 20 }}>Rooms</h2>
+        <h3 style={{ paddingLeft: 20 }}>Rooms</h3>
         {rooms}
       </div>;
     this.setState({ roomview: view })
@@ -128,9 +130,9 @@ export class Main extends Component {
       this.setState({ roomName: room });
       setTimeout(function(){
         document.title = "Riddlet - " + this.state.roomName;
-        setTimeout(function() {
-          this.updateScreen()
-        }.bind(this), 250)
+          setTimeout(function () {
+              this.renderRooms()
+        }.bind(this), 500)
       }.bind(this), 250)
   }
 
