@@ -48,7 +48,7 @@ export class Message extends Component {
               Anonymous <small>
                 <code>[{message.client}]</code>
               </small>
-            </span>: <span>{abc}</span>
+          </span>: <span style={{ overflow: "auto", wordWrap: "break-word" }}>{abc}</span>
           </div>;
           return (
               <div style={{ padding: 10, borderBottom: "1px solid #eeeeee" }}>{output}</div>

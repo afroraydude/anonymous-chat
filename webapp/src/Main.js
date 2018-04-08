@@ -82,7 +82,7 @@ export class Main extends Component {
           </NavbarBrand>
         </Navbar>
         <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
-            <div className="col-sm-2 d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
+            <div className="d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
             {this.state.roomview}
           </div>
             <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
