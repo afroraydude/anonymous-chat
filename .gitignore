@@ -1,9 +1,0 @@
-/server/node_modules/*
-/webapp/node_modules/*
-*/node_modules
-*.lock
-
-\.vs/
-
-*.realm
-webapp/package-lock.json

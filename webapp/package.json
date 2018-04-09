@@ -1,13 +1,14 @@
 {
   "name": "chatbot",
   "version": "0.1.0",
+  "homepage": "https://afroraydude.github.io/riddlet",
   "private": true,
   "dependencies": {
     "bootstrap": "^4.0.0",
     "buffer": "^5.1.0",
+    "gh-pages": "^1.1.0",
     "keypair": "^1.0.1",
     "open-graph-scraper": "^3.1.5",
-    "page-metadata-parser": "^1.1.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-fontawesome": "^1.6.1",
@@ -21,8 +22,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "postbuild": "rimraf build/**/*.map",
-    "deploy": "firebase deploy",
+    "firebasedeploy": "firebase deploy",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

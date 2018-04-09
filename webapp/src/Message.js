@@ -38,13 +38,14 @@ export class Message extends Component {
         var x = this.urlify(text);
         return ReactHtmlParser(x)
     }
+    
   render() {
     var message = this.props.message;
     var output;
       if (message.room === this.props.room || message.room === "#all") {
           const abc = this.test(message.data)
           // Nickname update
-          const name = message.nick ? message.nick : "Anonymous"
+          const name = message.nickname ? message.nickname : "Anonymous"
       output = <div key={message.id} style={{ fontSize: 12 }}>
             <span style={{ color: message.color }}>
                 {name} <small>

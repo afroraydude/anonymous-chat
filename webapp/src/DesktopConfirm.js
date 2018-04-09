@@ -38,7 +38,7 @@ export class DesktopConfirm extends Component {
   }
 
   join() {
-    window.location.href = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/chat/" + this.state.url;
+    window.location.href = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/#/chat/" + this.state.url;
   }
 
   render() {

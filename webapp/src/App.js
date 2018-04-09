@@ -15,7 +15,7 @@ var genkeys = function() {
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 12);
+    localStorage.setItem("version", 12.1);
 
     if (!localStorage.getItem("pubkey") || !localStorage.getItem("privkey")) {
       var keypair = genkeys();

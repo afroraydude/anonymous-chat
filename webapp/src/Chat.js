@@ -51,7 +51,7 @@ const decryptMessage = function(message, key) {
     var decrypted = publicDecrypt(key, buffer);
     return decrypted.toString("utf8")
   } catch (err) {
-    return "decryption err"
+    return message.data
   }
 }
 
@@ -111,7 +111,7 @@ export class Chat extends Component {
     socket.on(
       "version",
       function(v) {
-        if (v > parseInt(localStorage.getItem("version"))) {
+        if (v > parseFloat(localStorage.getItem("version"))) {
           navigator.serviceWorker
             .getRegistrations()
             .then(function(registrations) {
@@ -347,21 +347,32 @@ export class Chat extends Component {
         localStorage.setItem('privkey', keypair.private)
         socket.emit("clientkey", localStorage.getItem("pubkey"));
     }
-    else if (this.state.input.startsWith('/nick') {
-      var nick = x.split("/nick ")[1];
-      socket.emit("nick", nick);
-    }
     else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
-      var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
-      if (this.state.serverinfo.version < 11) {
-        console.log("lower version")
-        data.token = this.state.token
+      if (this.state.input.startsWith("/nick")) {
+        var nick = x.split("/nick ")[1];
+        socket.emit("nick", nick);
+        var messages = this.state.messages;
+        var newMessage = {
+          id: String(Date.now() +""+getRandomInt(10000, 99999)),
+          client: "Client",
+          color: "red",
+          room: room,
+          data: "Requested nickname change"
+        };
+        messages.push(newMessage);
+        this.setState({ messages: messages });
+      } else {
+        var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
+        if (this.state.serverinfo.version < 11) {
+          console.log("lower version")
+          data.token = this.state.token
+        }
+        if (this.state.serverinfo.encrypt === "true") {
+          console.log("sending encrypted message")
+          data.data = encryptMessage(data, localStorage.getItem("privkey"));
+        }
+        socket.emit("message", data);
       }
-      if (this.state.serverinfo.encrypt === "true") {
-        console.log("sending encrypted message")
-        data.data = encryptMessage(data, localStorage.getItem("privkey"));
-      }
-      socket.emit("message", data);
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;
       var room = x.split(" ")[1];

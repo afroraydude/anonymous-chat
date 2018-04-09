@@ -5,6 +5,13 @@ import logo from "./logo.png";
 import "./Start.css";
 import {DesktopConfirm} from './DesktopConfirm';
 
+var keypair = require('keypair')
+
+var genkeys = function() {
+  var pair = keypair();
+  return pair || {public: "fail", private: "fail"}
+}
+
 const b64EncodeUnicode = function(str) {
   // first we use encodeURIComponent to get percent-encoded UTF-8,
   // then we convert the percent encodings into raw bytes which
@@ -84,13 +91,11 @@ export class Start extends Component {
         this.connector(decode)
       }
     } else {
-      if(!this.state.url.startsWith("https")) {
-        this.connector(this.state.url)
-      } else {
-        this.connector(this.state.url)
-      }
+      this.connector(this.state.url)
     }
   }
+  
+  
 
   render() {
     var x = <p>No implement</p>;
@@ -152,6 +157,7 @@ export class Start extends Component {
           style={{ marginBottom: 50 }}
         />
         {x}
+        
         <small className="center">{"v"+localStorage.getItem("version")+"-alpha"}</small>
         <Modal isOpen={this.state.modal}>
           <ModalBody>
