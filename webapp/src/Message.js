@@ -43,7 +43,8 @@ export class Message extends Component {
     var output;
       if (message.room === this.props.room || message.room === "#all") {
           const abc = this.test(message.data)
-      output = <div key={message.id} style={{ fontSize: 12 }}>
+          const name = message.nick ? message.nick : message.id
+      output = <div key={name} style={{ fontSize: 12 }}>
             <span style={{ color: message.color }}>
               Anonymous <small>
                 <code>[{message.client}]</code>
