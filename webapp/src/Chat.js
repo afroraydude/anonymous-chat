@@ -347,6 +347,10 @@ export class Chat extends Component {
         localStorage.setItem('privkey', keypair.private)
         socket.emit("clientkey", localStorage.getItem("pubkey"));
     }
+    else if (this.state.input.startsWith('/nick') {
+      var nick = x.split("/nick ")[1];
+      socket.emit("nick", nick);
+    }
     else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
       var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
       if (this.state.serverinfo.version < 11) {
