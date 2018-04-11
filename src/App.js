@@ -4,6 +4,8 @@ import {Main} from './Main';
 import {Start} from './Start';
 import {DesktopConfirm} from './DesktopConfirm';
 import {createSign, getHashes} from 'crypto-browserify';
+import { Embed } from './Embed';
+import { Legal } from './Legal';
 
 var keypair = require('keypair')
 
@@ -15,7 +17,7 @@ var genkeys = function() {
 class App extends Component {
   constructor(props) {
     super(props);
-    localStorage.setItem("version", 12.1);
+    localStorage.setItem("version", 12.3);
 
     if (!localStorage.getItem("pubkey") || !localStorage.getItem("privkey")) {
       var keypair = genkeys();
@@ -41,10 +43,11 @@ class App extends Component {
       <Switch>
         <Route path="/chat/:url" exact={true} component={Main}/>
         <Route path="/chat/:url/confirm" component={DesktopConfirm}/>
+        <Route path="/chat/:url/embed" component={Embed}/>
             {
                 // TODO: Server owner login
             }
-        <Redirect path="/chat" to="/"/>
+        <Route path="/legal" component={Legal}/>
         <Route component={Start}/>
       </Switch>
     )
