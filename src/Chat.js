@@ -361,6 +361,12 @@ export class Chat extends Component {
         };
         messages.push(newMessage);
         this.setState({ messages: messages });
+      } else if (this.state.input.startsWith('/whisper')) {
+        var input = this.state.input
+        var user = input.split(' ')[1]
+        var data = input.split('/whisper '+user+' ')[1]
+        var message = {reciever: user, data: data}
+        socket.emit('whisper', message)
       } else {
         var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
         if (this.state.serverinfo.version < 11) {
