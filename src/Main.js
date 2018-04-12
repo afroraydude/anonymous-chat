@@ -87,7 +87,7 @@ export class Main extends Component {
             Commands
           </a>
         </Navbar>
-        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
+        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters bg-dark text-white">
           <div className="d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
             {this.state.roomview}
           </div>

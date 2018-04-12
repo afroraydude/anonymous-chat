@@ -45,13 +45,25 @@ export class Message extends Component {
           const abc = this.test(message.data)
           // Nickname update
           const name = message.nickname ? message.nickname : "Anonymous"
-      output = <div key={message.id} style={{ fontSize: 12 }}>
-            <span style={{ color: message.color }}>
-                {name} <small>
-                <code>[{message.client}]</code>
-              </small>
-          </span>: <span style={{ overflow: "auto", wordWrap: "break-word" }}>{abc}</span>
-          </div>;
+      output = (
+          <div class="row forceMargin" key={message.id} style={{ fontSize: 12 }}>
+            <div style={{marginRight: 10, marginLeft: 10}}>
+              <img className="rounded" src={message.img ? message.img : "https://steubenvilleconferences.com/wp-content/uploads/2015/10/no-image.png"} style={{height: 50, width: 50}} />
+            </div>
+            <div>
+              <div>
+              <span style={{ color: message.color, fontSize: 14 }}>
+                {name}
+                <small style={{ marginLeft: 5}}>
+                  <code>[{message.client}]</code>
+                </small>
+              </span>
+              </div>
+              <div style={{marginTop: 6}}>
+                <span style={{ overflow: "auto", wordWrap: "break-word" }}>{abc}</span>
+              </div>
+            </div>
+          </div>);
           return (
               <div style={{ padding: 10, borderBottom: "1px solid #eeeeee" }}>{output}</div>
       )

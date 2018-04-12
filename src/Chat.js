@@ -102,7 +102,7 @@ export class Chat extends Component {
       } else {
         socket.emit("noid");
       }
-    });
+    }.bind(this));
 
     socket.on("serverinfo", function(info) {
       this.setState({serverinfo: info})
@@ -282,6 +282,12 @@ export class Chat extends Component {
           {this.state.messageView}
                 </div> )
       this.setState({screenshow: screen})
+    try {
+      var elem = document.getElementById("data");
+      elem.scrollTop = elem.scrollHeight;
+    } catch(err) {
+
+    }
   }
 
   updateMessages() {
@@ -296,8 +302,8 @@ export class Chat extends Component {
       key: Math.random()
     });
     try {
-    var elem = document.getElementById("data");
-    elem.scrollTop = elem.scrollHeight;
+      var elem = document.getElementById("data");
+      elem.scrollTop = elem.scrollHeight;
     } catch(err) {
 
     }
@@ -367,6 +373,9 @@ export class Chat extends Component {
         var data = input.split('/whisper '+user+' ')[1]
         var message = {reciever: user, data: data}
         socket.emit('whisper', message)
+      } else if (this.state.input.startsWith('/setimg')) {
+        var img = this.state.input.split(' ')[1]
+        socket.emit('setimg',img)
       } else {
         var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
         if (this.state.serverinfo.version < 11) {
@@ -409,7 +418,7 @@ export class Chat extends Component {
   render() {
     //this.updateMessages();
     //this.updateScreen();
-    return <div style={{ height: "100%" }}>
+    return <div style={{ height: "100%" }} className="text-white bg-dark">
     {this.state.screenshow}
     <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50, borderTop: "1px solid rgb(238, 238, 238)" }}>
             <Form
