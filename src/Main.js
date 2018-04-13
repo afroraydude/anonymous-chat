@@ -63,12 +63,12 @@ export class Main extends Component {
           Commands
         </a>
       </Navbar>
-      <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters bg-dark text-white">
+      <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className={`row no-gutters bg-${localStorage.getItem('theme')} text-${localStorage.getItem('texttheme')}`}>
         <div className="d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
           {this.state.roomview}
         </div>
-        <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
-          <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+        <div className="col-xs-12 col-md-10 no-gutters bg-${localStorage.getItem('theme')} text-${localStorage.getItem('texttheme')}" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+          <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} test={this.updateScreen} />
         </div>
       </div>
     </div>;
