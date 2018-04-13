@@ -17,6 +17,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.0",
     "reactstrap": "^5.0.0-alpha.4",
+    "riddlet-core": "^0.2.3",
     "socket.io-client": "^2.0.4"
   },
   "scripts": {

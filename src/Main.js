@@ -55,23 +55,23 @@ export class Main extends Component {
   componentDidMount() {
     this.renderRooms();
     var screen = <div style={{ height: "100%", width: "100%" }}>
-        <Navbar expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
-          <NavbarBrand>
-            <img alt="logo" src={logo} height="50" />
-          </NavbarBrand>
-          <a href="https://riddlet-docs.afroraydude.com/client-commands" target="_blank">
-            Commands
-          </a>
-        </Navbar>
-        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters">
-          <div className="col-sm-2 d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
-            {this.state.roomview}
-          </div>
-          <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
-            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
-          </div>
+      <Navbar expand="md" style={{ borderBottom: "1px solid #eeeeee", height: 50 }}>
+        <NavbarBrand>
+          <img alt="logo" src={logo} height="50" />
+        </NavbarBrand>
+        <a href="https://riddlet-docs.afroraydude.com/client-commands" target="_blank">
+          Commands
+        </a>
+      </Navbar>
+      <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters bg-dark text-white">
+        <div className="d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
+          {this.state.roomview}
         </div>
-      </div>;
+        <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+          <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+        </div>
+      </div>
+    </div>;
       this.updateScreen = this.updateScreen.bind(this)
     this.setState({ roomName: this.state.rooms[this.state.room], screen: screen });
     window.addEventListener("resize", this.updateScreen);
@@ -87,12 +87,12 @@ export class Main extends Component {
             Commands
           </a>
         </Navbar>
-        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className="row no-gutters bg-dark text-white">
+        <div style={{ height: window.innerHeight - 50, width: "100%", overflow: "hidden", marginRight: -15 }} className={`row no-gutters bg-${localStorage.getItem('theme')} text-${localStorage.getItem('texttheme')}`}>
           <div className="d-xs-none d-sm-none d-md-block col-md-2 no-gutters" style={{ height: "100%" }}>
             {this.state.roomview}
           </div>
-          <div className="col-xs-12 col-md-10 no-gutters" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
-            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} />
+          <div className="col-xs-12 col-md-10 no-gutters bg-${localStorage.getItem('theme')} text-${localStorage.getItem('texttheme')}" style={{ height: "100%", borderLeft: "1px solid #eeeeee", overflow: "auto" }}>
+            <Chat rooms={this.state.rooms} room={this.state.roomName} url={this.state.server} switchRoom={this.switchRoom} joinRoom={this.joinRoom} resetRooms={this.resetRooms} leaveRoom={this.leaveRoom} test={this.updateScreen} />
           </div>
         </div>
       </div>;

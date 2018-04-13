@@ -21,6 +21,8 @@ import { setTimeout } from "timers";
 
 var keypair = require('keypair')
 
+var riddletMessage = require('riddlet-core').RiddletMessage
+
 var genkeys = function () {
     var pair = keypair();
     return pair || { public: "fail", private: "fail" }
@@ -37,23 +39,6 @@ const b64DecodeUnicode = function(str) {
       .join("")
   );
 };
-
-const encryptMessage = function(message, key) {
-  const buffer = new Buffer(message.data);
-  var encrypted = privateEncrypt(key, buffer)
-  return encrypted.toString("base64");
-}
-
-const decryptMessage = function(message, key) {
-  try {
-    key = key ? key : localStorage.getItem("pubkey")
-    const buffer = new Buffer(message.data, "base64");
-    var decrypted = publicDecrypt(key, buffer);
-    return decrypted.toString("utf8")
-  } catch (err) {
-    return message.data
-  }
-}
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -196,8 +181,11 @@ export class Chat extends Component {
     socket.on(
       "message",
       function(message) {
-        // TODO: decrypt all messages (see server.js TODO)
-        if (this.state.serverinfo.encrypt === "true") message.data = decryptMessage(message, this.state.servkey);
+        console.log(message)
+        message = new riddletMessage(message)
+        console.log(message)
+        if (this.state.serverinfo.encrypt === "true") message.decrypt(this.state.servkey)
+        message = JSON.parse(message.toString())
         var data = this.state.messages;
         data.push(message);
         this.setState({ messages: data });
@@ -314,46 +302,87 @@ export class Chat extends Component {
     event.preventDefault();
     var socket = this.state.iosocket;
     /** TODO: Send messages encrypted
-      var algorithm = 'aes-256-ctr';
-      var x = createCipher(algorithm, this.state.crypto);
-      var y = x.update(this.state.input, 'utf8', 'hex');
-    */
+     var algorithm = 'aes-256-ctr';
+     var x = createCipher(algorithm, this.state.crypto);
+     var y = x.update(this.state.input, 'utf8', 'hex');
+     */
     var config = JSON.parse(localStorage.getItem("config"));
     var servers = config.servers;
-    var server = servers.filter(function(server) {
+    var server = servers.filter(function (server) {
       return server.id === this.props.url;
     }.bind(this))[0];
     var x = this.state.input;
     var room = x.split(" ")[1];
     if (this.state.input === "/reset") {
-        socket.emit("noid");
-        var messages = this.state.messages;
-        var newMessage = {
-            id: String(Date.now() + "" + getRandomInt(10000, 99999)),
-            client: "Client",
-            color: "red",
-            room: "#all",
-            data: "Reset user data."
-        };
-        messages.push(newMessage);
-        this.setState({ messages: messages });
+      socket.emit("noid");
+      var messages = this.state.messages;
+      var newMessage = {
+        id: String(Date.now() + "" + getRandomInt(10000, 99999)),
+        client: "Client",
+        color: "red",
+        room: "#all",
+        data: "Reset user data."
+      };
+      messages.push(newMessage);
+      this.setState({messages: messages});
     } else if (this.state.input === '/newkeys') {
-        var messages = this.state.messages;
-        var newMessage = {
-            id: String(Date.now() + "" + getRandomInt(10000, 99999)),
-            client: "Client",
-            color: "red",
-            room: "#all",
-            data: "Created new keys"
-        };
-        messages.push(newMessage);
-        this.setState({ messages: messages });
-        var keypair = genkeys();
-        localStorage.setItem('pubkey', keypair.public)
-        localStorage.setItem('privkey', keypair.private)
-        socket.emit("clientkey", localStorage.getItem("pubkey"));
-    }
-    else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
+      var messages = this.state.messages;
+      var newMessage = {
+        id: String(Date.now() + "" + getRandomInt(10000, 99999)),
+        client: "Client",
+        color: "red",
+        room: "#all",
+        data: "Created new keys"
+      };
+      messages.push(newMessage);
+      this.setState({messages: messages});
+      var keypair = genkeys();
+      localStorage.setItem('pubkey', keypair.public)
+      localStorage.setItem('privkey', keypair.private)
+      socket.emit("clientkey", localStorage.getItem("pubkey"));
+    } else if (this.state.input === "/dark") {
+      localStorage.setItem('theme', "dark")
+      localStorage.setItem('texttheme', "white")
+      var messages = this.state.messages;
+      var newMessage = {
+        id: String(Date.now() +""+getRandomInt(10000, 99999)),
+        client: "Client",
+        color: "red",
+        room: "#all",
+        data: "Switched to dark theme"
+      };
+      messages.push(newMessage);
+      this.setState({ messages: messages });
+      this.props.test()
+    } else if (this.state.input === "/light") {
+      localStorage.setItem('theme', "white")
+      localStorage.setItem('texttheme', "black")
+      var messages = this.state.messages;
+      var newMessage = {
+        id: String(Date.now() +""+getRandomInt(10000, 99999)),
+        client: "Client",
+        color: "red",
+        room: "#all",
+        data: "Switched to light theme"
+      };
+      messages.push(newMessage);
+      this.setState({ messages: messages });
+      this.props.test()
+    } else if (this.state.input === "/clear") {
+      var messages = []
+      this.setState({ messages: messages });
+    } else if (this.state.input === "/help") {
+      var messages = this.state.messages;
+      var newMessage = {
+        id: String(Date.now() +""+getRandomInt(10000, 99999)),
+        client: "Client",
+        color: "red",
+        room: "#all",
+        data: "Click the \"Commands\" link to see available commands"
+      };
+      messages.push(newMessage);
+      this.setState({ messages: messages });
+    } else if ((!this.state.input.startsWith("/switch") || this.props.rooms.indexOf(room) === -1) && this.state.input) {
       if (this.state.input.startsWith("/nick")) {
         var nick = x.split("/nick ")[1];
         socket.emit("nick", nick);
@@ -377,16 +406,19 @@ export class Chat extends Component {
         var img = this.state.input.split(' ')[1]
         socket.emit('setimg',img)
       } else {
-        var data = { id: String(Date.now() +""+getRandomInt(10000, 99999)), room: this.props.room, data: this.state.input };
+        var x = require('riddlet-core').RiddletUser
+        var user = new x()
+        user.fromToken(localStorage.getItem(this.props.url))
+        var message = new riddletMessage(this.state.input, this.props.room, user)
         if (this.state.serverinfo.version < 11) {
           console.log("lower version")
-          data.token = this.state.token
+          message.token = this.state.token
         }
         if (this.state.serverinfo.encrypt === "true") {
           console.log("sending encrypted message")
-          data.data = encryptMessage(data, localStorage.getItem("privkey"));
+          message.encrypt(localStorage.getItem('privkey'))
         }
-        socket.emit("message", data);
+        socket.emit("message", message);
       }
     } else if(this.state.input.startsWith("/switch") && this.props.rooms.indexOf(room) > -1) {
       var x = this.state.input;
@@ -405,9 +437,10 @@ export class Chat extends Component {
         messages.push(newMessage);
         this.setState({ messages: messages });
         // Wait for everything to update then reload messages
-        setTimeout(this.updateMessages, 10)
+
     }
     this.setState({ input: "" });
+    setTimeout(this.updateMessages, 10)
   }
 
   handleTextTyping(event) {
@@ -418,7 +451,7 @@ export class Chat extends Component {
   render() {
     //this.updateMessages();
     //this.updateScreen();
-    return <div style={{ height: "100%" }} className="text-white bg-dark">
+    return <div style={{ height: "100%" }}>
     {this.state.screenshow}
     <div className="footform" style={{ width: "100%", display: "block", position: "absolute", bottom: 0, height: 50, borderTop: "1px solid rgb(238, 238, 238)" }}>
             <Form
