@@ -1,4 +1,4 @@
-Apurato (あプラト)
+Apurato (アプラート)
 ==============
 [![GitHub release](https://img.shields.io/github/release/afroraydude/anonymous-chat.svg)]() [![Github commits (since latest release)](https://img.shields.io/github/commits-since/afroraydude/anonymous-chat/latest.svg)]()
 
